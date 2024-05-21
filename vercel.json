@@ -11,10 +11,17 @@
   ],
   "routes": [
     {
+      "src": "/static/(.*)",
+      "headers": {
+        "Cache-Control": "max-age=31536000, immutable",
+        "Content-Type": "application/javascript"
+      },
+      "dest": "/static/$1"
+    },
+    {
       "src": "/(.*)",
-      "headers": { "Content-Type": "application/javascript" },
       "dest": "vercel_app.py"
-      
     }
   ]
 }
+
