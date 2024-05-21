@@ -24,7 +24,7 @@ from django.shortcuts import redirect
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-   # path('', lambda request: redirect('admin/')),
+    path('', lambda request: redirect('admin/')),
 
     path('musics/', views.musicApi),
     path('music/', views.musicApiHTML, name='index'),
