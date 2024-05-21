@@ -4,9 +4,9 @@
   "builds": [
     {
       "src": "music/wsgi.py",
-      "use": "@vercel/python",
+      "use": {"@vercel/python", "@vercel/static-build"}
       "config": {
-        "buildCommand": "./build_files.sh"
+        "buildCommand": "./build_files.sh" , "distDir": "staticfiles_build"
       }
     }
   ],
