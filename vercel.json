@@ -4,12 +4,10 @@
     {
       "src": "music/wsgi.py",
       "use": "@vercel/python",
-      "config": {
-        "buildCommand": "./build_files.sh"
-      }
+      "config": { "maxLambdaSize": "15mb", "runtime": "python3.12" }
     },
     {
-      "src": "staticfiles_build/**/*",
+      "src": "/build_files.sh",
       "use": "@vercel/static-build",
       "config": {
         "distDir": "staticfiles_build"
