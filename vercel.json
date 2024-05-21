@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "vercel_app.py",
+      "src": "music/wsgi.py",
       "use": "@vercel/python",
       "config": {
         "buildCommand": "./build_files.sh"
@@ -16,7 +16,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "vercel_app.py"
+      "dest": "music/wsgi.py"
     }
   ]
 }
