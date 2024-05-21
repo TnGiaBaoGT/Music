@@ -4,7 +4,7 @@
     {
       "src": "music/wsgi.py",
       "use": "@vercel/python",
-      "config": { "buildcommand": "/build_files.sh" }
+      "config": { "buildcommand": "build_files.sh" }
     }
   ],
   "routes": [
