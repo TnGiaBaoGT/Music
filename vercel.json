@@ -11,12 +11,12 @@
   ],
   "routes": [
     {
-      "src": "/static/(.*)",
+      "src": "static/(.*)",
       "headers": {
         "Cache-Control": "max-age=31536000, immutable",
         "Content-Type": "application/javascript"
       },
-      "dest": "/static/$1"
+      "dest": "static/$1"
     },
     {
       "src": "/(.*)",
