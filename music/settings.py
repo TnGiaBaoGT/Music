@@ -158,4 +158,5 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MEDIA_ROOT = '/tmp/media'
 MEDIA_URL = '/media/'
 # MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-DEFAULT_FILE_STORAGE = 'myapp.custom_storages.TemporaryFileSystemStorage'
+os.makedirs(MEDIA_ROOT, exist_ok=True)
+DEFAULT_FILE_STORAGE = 'MusicApp.custom_storages.TemporaryFileSystemStorage'
