@@ -17,7 +17,7 @@
             <p>Genre: {{ music.get_genre_music_display }}</p>
             <p>Status: {{ music.status_music }}</p>
             {% if music.image_music %}
-            <img src="{{ music.image_music }}" alt="{{ music.name_music }}" width="100" height="100">
+            <img src="{{ music.image_music }}" alt="{{ music.name_music }}" width="100" height="100"> </br>
             {% endif %}
             {% if music.music %}
             <audio controls>
