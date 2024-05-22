@@ -1,9 +1,10 @@
 from django.db import models
+from cloudinary_storage.storage import RawMediaCloudinaryStorage
 
 class Music (models.Model):
     id_music = models.AutoField(primary_key=True)
     name_music = models.CharField(max_length=200)
-    music = models.FileField(upload_to='music_files/')
+    music = models.FileField(upload_to='music_files/',storage=RawMediaCloudinaryStorage())
     name_singer_music = models.CharField(max_length=200)
     release_year_music = models.CharField(max_length=10)
     price_music = models.FloatField(default=0)
@@ -20,10 +21,11 @@ class Music (models.Model):
     ]
 
     genre_music = models.CharField(max_length=100, choices=GENRE_CHOICES, default='Pop')
-    image_music = models.ImageField(upload_to='music_images/', null=True, blank=True)
+    image_music = models.ImageField(upload_to='music_images/', null=True, blank=True, storage=RawMediaCloudinaryStorage())
     
     def __str__(self):
         return self.name_music
+    
     
 
 
