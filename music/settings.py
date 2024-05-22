@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 import os
-from django.core.files.storage import FileSystemStorage
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -149,15 +149,21 @@ CORS_ALLOW_ALL_HEADERS=True
 
 
 
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'dlf18n0ua',
+    'API_KEY': '599255533318168',
+    'API_SECRET': 'r1SzZ41QNSFJQME0L9iFb7NmCOU',
+}
 
-# Base directory of your project
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Media configurations
 
-MEDIA_ROOT = '/tmp/media'
-MEDIA_URL = '/media/'
-# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# # Base directory of your project
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-DEFAULT_FILE_STORAGE = 'MusicApp.custom_storages.TemporaryFileSystemStorage'
-os.makedirs(MEDIA_ROOT, exist_ok=True)
+# # Media configurations
+
+# MEDIA_ROOT = '/tmp/media'
+# MEDIA_URL = '/media/'
+# # MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
