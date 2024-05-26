@@ -65,41 +65,48 @@ def musicApiHTML(request, id_music=0):
 
 @csrf_exempt
 def userApi(request, id_user=0):
-    try:
-        if request.method == 'GET':
-            if id_user == 0:
-                user = User.objects.all()
-                user_serializer = UserSerializer(user, many=True)
-            else:
+    if request.method == 'GET':
+        if id_user == 0:
+            user = User.objects.all()
+            user_serializer = UserSerializer(user, many=True)
+        else:
+            try:
                 user = User.objects.get(id_user=id_user)
                 user_serializer = UserSerializer(user)
-            return JsonResponse(user_serializer.data, safe= False)
+            except User.DoesNotExist:
+                return JsonResponse({'mess': 'Record not found'}, status=404)
+        return JsonResponse(user_serializer.data, safe=False)
         
-        elif request.method == 'POST':
-            user_data = JSONParser().parse(request)
-            user_serializer = UserSerializer(data=user_data)
-            if user_serializer.is_valid():
-                user_serializer.save()
-                return JsonResponse({'mess': 'Added Successfully'}, safe= False)
-            return JsonResponse(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-        elif request.method == 'PUT':
-            user_data = JSONParser().parse(request)
+    
+    elif request.method == 'POST':
+        user_data = JSONParser().parse(request)
+        user_serializer = UserSerializer(data=user_data)
+        if user_serializer.is_valid():
+            user_serializer.save()
+            return JsonResponse({'mess': 'Added Successfully'}, safe=False)
+        return JsonResponse("Failed to Add", safe=False, status=400)
+    
+    elif request.method == 'PUT':
+        user_data = JSONParser().parse(request)
+        try:
             user = User.objects.get(id_user=id_user)
             user_serializer = UserSerializer(user, data=user_data)
             if user_serializer.is_valid():
                 user_serializer.save()
-                return JsonResponse({'mess': 'Updated Successfully'}, safe= False)
-            return JsonResponse(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-        elif request.method == 'DELETE':
+                return JsonResponse({'mess': 'Updated Successfully'}, safe=False)
+            return JsonResponse("Failed to Update", safe=False, status=400)
+        except User.DoesNotExist:
+            return JsonResponse({'mess': 'Record not found'}, status=404)
+    
+    elif request.method == 'DELETE':
+        try:
             user = User.objects.get(id_user=id_user)
             user.delete()
-            return JsonResponse({'mess': 'Deleted Successfully'}, safe= False)
-    except User.DoesNotExist:
-        return JsonResponse({'mess': 'Record not found'}, status=status.HTTP_404_NOT_FOUND)
+            return JsonResponse({'mess': 'Deleted Successfully'}, safe=False)
+        except User.DoesNotExist:
+            return JsonResponse({'mess': 'Record not found'}, status=404)
 
-# Similar pattern can be applied to Singer, Role, Vote, and Transaction APIs
+
 
 @csrf_exempt
 def singerApi(request, id_singer=0):
