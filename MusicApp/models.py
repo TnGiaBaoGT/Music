@@ -32,18 +32,6 @@ class Music (models.Model):
 
 
 
-class Role (models.Model):
-    id_role =  models.AutoField(primary_key=True)
-    ROLE_CHOICES = [
-        ('USER', 'User'),
-        ('COMPOSER', 'Composer'),
-    ]
-
-    name_role = models.CharField(max_length=100, choices=ROLE_CHOICES)
-
-    def __str__(self):
-        return self.name_role
-    
 
 
 class User (models.Model):
@@ -57,7 +45,12 @@ class User (models.Model):
         return f"ID: {self.id_user} { ''*20} | Name: {self.name_user}"
 
 
-    role_id_user = models.OneToOneField(Role, on_delete=models.DO_NOTHING, null= True)
+     ROLE_CHOICES = [
+        ('USER', 'User'),
+        ('COMPOSER', 'Composer'),
+    ]
+
+    name_role = models.CharField(max_length=100, choices=ROLE_CHOICES,default='User')
 
 
 
