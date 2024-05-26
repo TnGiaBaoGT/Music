@@ -36,9 +36,6 @@ urlpatterns = [
     path('singers/', views.singerApi),
     path('singers/<int:id_singer>', views.singerApi),
 
-    path('roles/', views.roleApi),
-    path('roles/<int:id_role>', views.roleApi),
-
     path('votes/', views.voteApi),
     path('votes/<int:id_vote>', views.voteApi),
 
