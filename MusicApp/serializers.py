@@ -16,10 +16,6 @@ class SingerSerializer(serializers.ModelSerializer):
         model = Singer
         fields = '__all__'
 
-class RoleSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Role
-        fields = '__all__'
 
 class VoteSerializer(serializers.ModelSerializer):
     class Meta:
