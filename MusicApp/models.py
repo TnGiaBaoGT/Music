@@ -25,13 +25,6 @@ class Music (models.Model):
     
     def __str__(self):
         return self.name_music
-    
-
-
-
-
-
-    
 
 
 class User (models.Model):
@@ -65,7 +58,6 @@ class Singer (models.Model):
 
     def __str__(self):
         return self.name_singer
-
 
 
 
