@@ -26,12 +26,12 @@ class Music (models.Model):
     def __str__(self):
         return self.name_music
     
+
+
+
+
+
     
-
-
-
-
-
 
 
 class User (models.Model):
@@ -45,7 +45,7 @@ class User (models.Model):
         return f"ID: {self.id_user} { ''*20} | Name: {self.name_user}"
 
 
-     ROLE_CHOICES = [
+    ROLE_CHOICES = [
         ('USER', 'User'),
         ('COMPOSER', 'Composer'),
     ]
