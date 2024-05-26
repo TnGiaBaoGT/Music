@@ -2,8 +2,8 @@ from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
-from MusicApp.models import Music, User, Singer, Role, Vote, Transaction, Album
-from MusicApp.serializers import MusicSerializer, UserSerializer, SingerSerializer, RoleSerializer, VoteSerializer, TransactionSerializer, AlbumSerializer
+from MusicApp.models import Music, User, Singer, Vote, Transaction, Album
+from MusicApp.serializers import MusicSerializer, UserSerializer, SingerSerializer, VoteSerializer, TransactionSerializer, AlbumSerializer
 from django.shortcuts import render
 @csrf_exempt
 def musicApi(request, id_music=0):
@@ -144,41 +144,6 @@ def singerApi(request, id_singer=0):
     except Singer.DoesNotExist:
         return JsonResponse({'mess': 'Record not found'}, status=status.HTTP_404_NOT_FOUND)
 
-@csrf_exempt
-def roleApi(request, id_role=0):
-    try:
-        if request.method == 'GET':
-            if id_role == 0:
-                role = Role.objects.all()
-                role_serializer = RoleSerializer(role, many=True)
-            else:
-                role = Role.objects.get(id_role=id_role)
-                role_serializer = RoleSerializer(role)
-            return JsonResponse(role_serializer.data, safe= False)
-        
-        elif request.method == 'POST':
-            role_data = JSONParser().parse(request)
-            role_serializer = RoleSerializer(data=role_data)
-            if role_serializer.is_valid():
-                role_serializer.save()
-                return JsonResponse({'mess': 'Added Successfully'}, safe= False)
-            return JsonResponse(role_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-        elif request.method == 'PUT':
-            role_data = JSONParser().parse(request)
-            role = Role.objects.get(id_role=id_role)
-            role_serializer = RoleSerializer(role, data=role_data)
-            if role_serializer.is_valid():
-                role_serializer.save()
-                return JsonResponse({'mess': 'Updated Successfully'}, safe= False)
-            return JsonResponse(role_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-        elif request.method == 'DELETE':
-            role = Role.objects.get(id_role=id_role)
-            role.delete()
-            return JsonResponse({'mess': 'Deleted Successfully'}, safe= False)
-    except Role.DoesNotExist:
-        return JsonResponse({'mess': 'Record not found'}, status=status.HTTP_404_NOT_FOUND)
 
 @csrf_exempt
 def voteApi(request, id_vote=0):
