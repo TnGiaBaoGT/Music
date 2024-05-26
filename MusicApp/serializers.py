@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from MusicApp.models import Music, User, Singer, Role, Vote, Transaction, Album
+from MusicApp.models import Music, User, Singer, Vote, Transaction, Album
 
 class MusicSerializer(serializers.ModelSerializer):
     class Meta:
