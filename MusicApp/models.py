@@ -49,10 +49,9 @@ class Role (models.Model):
 class User (models.Model):
     id_user = models.AutoField(primary_key=True)
     name_user = models.CharField(max_length=200)
-    username = models.CharField(max_length=200)
+    email_user = models.EmailField(max_length=50)
     pass_user = models.CharField(max_length=200)
     phone_user = models.CharField(max_length=20)
-    email_user = models.EmailField(max_length=50)
     status_user = models.BooleanField(default= True)
     def __str__(self):
         return f"ID: {self.id_user} { ''*20} | Name: {self.name_user}"
