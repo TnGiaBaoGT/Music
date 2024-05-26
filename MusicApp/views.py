@@ -75,7 +75,7 @@ def userApi(request, id_user=0):
                 user_serializer = UserSerializer(user)
             except User.DoesNotExist:
                 return JsonResponse({'mess': 'Record not found'}, status=404)
-        return JsonResponse(user_serializer.data, safe=False)
+        return JsonResponse({'user':user_serializer.data}, safe=False)
         
     
     elif request.method == 'POST':
