@@ -90,11 +90,13 @@ def userApi(request, id_user=0):
         user_data = JSONParser().parse(request)
         try:
             user = User.objects.get(id_user=id_user)
-            user_serializer = UserSerializer(user, data=user_data)
+            user_serializer = UserSerializer(user, data=user_data, partial=True)  # Use partial update
             if user_serializer.is_valid():
                 user_serializer.save()
                 return JsonResponse({'mess': 'Updated Successfully'}, safe=False)
-            return JsonResponse("Failed to Update", safe=False, status=400)
+            else:
+                # Return detailed error messages
+                return JsonResponse(user_serializer.errors, safe=False, status=400)
         except User.DoesNotExist:
             return JsonResponse({'mess': 'Record not found'}, status=404)
     
