@@ -65,7 +65,7 @@ class Vote (models.Model):
     id_vote = models.AutoField(primary_key=True)
     comment_vote = models.CharField(max_length=50, null= True)
     report_vote = models.CharField(max_length=50,  null= True, blank= True)
-    num_vote = models.IntegerField()
+    num_vote = models.IntegerField(null=True , blank=True)
     
     def __str__(self):
         return f"Vote {self.id_vote}"
