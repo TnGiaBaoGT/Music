@@ -75,7 +75,7 @@ class Vote (models.Model):
     
     @property
     def user_name(self):
-        return self.user_id_vote.username if self.user_id_vote else 'Anonymous'
+        return self.user_id_vote.name_user if self.user_id_vote else 'Anonymous'
 
 
 
