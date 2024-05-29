@@ -18,7 +18,7 @@ class SingerSerializer(serializers.ModelSerializer):
 
 
 class VoteSerializer(serializers.ModelSerializer):
-    user_name = serializers.ReadOnlyField(source='user_id_vote.username')
+    user_name = serializers.ReadOnlyField(source='user_id_vote.name_user')
     class Meta:
         model = Vote
         fields = '__all__'
