@@ -72,6 +72,10 @@ class Vote (models.Model):
 
     user_id_vote = models.ForeignKey(User, on_delete=models.CASCADE, null= True)
     music_id_vote = models.ForeignKey(Music, on_delete=models.CASCADE, null= True)
+    
+    @property
+    def user_name(self):
+        return self.user_id_vote.username if self.user_id_vote else 'Anonymous'
 
 
 
