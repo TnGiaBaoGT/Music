@@ -63,8 +63,8 @@ class Singer (models.Model):
 
 class Vote (models.Model):
     id_vote = models.AutoField(primary_key=True)
-    comment_vote = models.CharField(max_length=50)
-    report_vote = models.CharField(max_length=50)
+    comment_vote = models.CharField(max_length=50, null= True)
+    report_vote = models.CharField(max_length=50, null= True)
     num_vote = models.IntegerField()
     
     def __str__(self):
