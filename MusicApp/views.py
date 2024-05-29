@@ -149,39 +149,49 @@ def singerApi(request, id_singer=0):
 
 @csrf_exempt
 def voteApi(request, id_vote=0):
-    try:
-        if request.method == 'GET':
-            if id_vote == 0:
-                vote = Vote.objects.all()
-                vote_serializer = VoteSerializer(vote, many=True)
-            else:
+    if request.method == 'GET':
+        if id_vote == 0:
+            vote = Vote.objects.all()
+            vote_serializer = VoteSerializer(vote, many=True)
+        else:
+            try:
                 vote = Vote.objects.get(id_vote=id_vote)
                 vote_serializer = VoteSerializer(vote)
-            return JsonResponse(vote_serializer.data, safe= False)
+            except Vote.DoesNotExist:
+                return JsonResponse({'mess': 'Record not found'}, status=404)
+        return JsonResponse({'vote':vote_serializer.data}, safe=False)
         
-        elif request.method == 'POST':
-            vote_data = JSONParser().parse(request)
-            vote_serializer = VoteSerializer(data=vote_data)
-            if vote_serializer.is_valid():
-                vote_serializer.save()
-                return JsonResponse({'mess': 'Added Successfully'}, safe= False)
-            return JsonResponse(vote_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-        elif request.method == 'PUT':
-            vote_data = JSONParser().parse(request)
+    
+    elif request.method == 'POST':
+        vote_data = JSONParser().parse(request)
+        vote_serializer = VoteSerializer(data=vote_data)
+        if vote_serializer.is_valid():
+            vote_serializer.save()
+            return JsonResponse({'mess': 'Added Successfully'}, safe=False)
+        return JsonResponse("Failed to Add", safe=False, status=400)
+    
+    elif request.method == 'PUT':
+        vote_data = JSONParser().parse(request)
+        try:
             vote = Vote.objects.get(id_vote=id_vote)
-            vote_serializer = VoteSerializer(vote, data=vote_data)
+            vote_serializer = VoteSerializer(vote, data=vote_data, partial=True)  # Use partial update
             if vote_serializer.is_valid():
                 vote_serializer.save()
-                return JsonResponse({'mess': 'Updated Successfully'}, safe= False)
-            return JsonResponse(vote_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-        elif request.method == 'DELETE':
+                return JsonResponse({'mess': 'Updated Successfully'}, safe=False)
+            else:
+                # Return detailed error messages
+                return JsonResponse(vote_serializer.errors, safe=False, status=400)
+        except Vote.DoesNotExist:
+            return JsonResponse({'mess': 'Record not found'}, status=404)
+    
+    elif request.method == 'DELETE':
+        try:
             vote = Vote.objects.get(id_vote=id_vote)
             vote.delete()
-            return JsonResponse({'mess': 'Deleted Successfully'}, safe= False)
-    except Vote.DoesNotExist:
-        return JsonResponse({'mess': 'Record not found'}, status=status.HTTP_404_NOT_FOUND)
+            return JsonResponse({'mess': 'Deleted Successfully'}, safe=False)
+        except Vote.DoesNotExist:
+            return JsonResponse({'mess': 'Record not found'}, status=404)
+            
 
 @csrf_exempt
 def transactionApi(request, id_transaction=0):
