@@ -245,6 +245,7 @@ def albumApi(request, id_album=0):
             except Album.DoesNotExist:
                 return JsonResponse({'mess': 'Record not found'}, status=404)
         return JsonResponse({'album':album_serializer.data}, safe=False)
+        
     
     elif request.method == 'POST':
         album_data = JSONParser().parse(request)
@@ -258,11 +259,13 @@ def albumApi(request, id_album=0):
         album_data = JSONParser().parse(request)
         try:
             album = Album.objects.get(id_album=id_album)
-            album_serializer = AlbumSerializer(album, data=album_data)
+            album_serializer = AlbumSerializer(album, data=album_data, partial=True)  # Use partial update
             if album_serializer.is_valid():
                 album_serializer.save()
                 return JsonResponse({'mess': 'Updated Successfully'}, safe=False)
-            return JsonResponse("Failed to Update", safe=False, status=400)
+            else:
+                # Return detailed error messages
+                return JsonResponse(album_serializer.errors, safe=False, status=400)
         except Album.DoesNotExist:
             return JsonResponse({'mess': 'Record not found'}, status=404)
     
