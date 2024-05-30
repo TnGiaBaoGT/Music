@@ -29,6 +29,12 @@ class TransactionSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class AlbumSerializer(serializers.ModelSerializer):
+    music_info = serializers.SerializerMethodField()
     class Meta:
         model = Album
         fields = '__all__'
+
+    def get_music_info(self, obj):
+        return obj.music_info
+
+
