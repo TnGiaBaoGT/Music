@@ -100,3 +100,15 @@ class Album (models.Model):
 
     music_id_album = models.ManyToManyField(Music)
     user_id_album = models.ForeignKey(User, on_delete=models.CASCADE, null= True)
+    
+    @property
+    def music_info(self):
+        return [
+            {
+                'name_music': music.name_music,
+                'music': music.music.url if music.music else None,
+                'name_singer_music': music.name_singer_music,
+                'image_music': music.image_music.url if music.image_music else None,
+            }
+            for music in self.music_id_album.all()
+        ]
