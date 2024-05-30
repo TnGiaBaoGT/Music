@@ -98,7 +98,7 @@ class Album (models.Model):
     def __str__(self):
         return self.name_album
 
-    music_id_album = models.ManyToManyField(Music)
+    music_id_album = models.ManyToManyField(Music, blank=True)
     user_id_album = models.ForeignKey(User, on_delete=models.CASCADE, null= True)
     
     @property
