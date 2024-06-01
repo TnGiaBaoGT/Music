@@ -112,39 +112,48 @@ def userApi(request, id_user=0):
 
 @csrf_exempt
 def singerApi(request, id_singer=0):
-    try:
-        if request.method == 'GET':
-            if id_singer == 0:
-                singer = Singer.objects.all()
-                singer_serializer = SingerSerializer(singer, many=True)
-            else:
+    if request.method == 'GET':
+        if id_singer == 0:
+            singer = Singer.objects.all()
+            singer_serializer = SingerSerializer(singer, many=True)
+        else:
+            try:
                 singer = Singer.objects.get(id_singer=id_singer)
                 singer_serializer = SingerSerializer(singer)
-            return JsonResponse(singer_serializer.data, safe= False)
+            except Singer.DoesNotExist:
+                return JsonResponse({'mess': 'Record not found'}, status=404)
+        return JsonResponse({'singer':singer_serializer.data}, safe=False)
         
-        elif request.method == 'POST':
-            singer_data = JSONParser().parse(request)
-            singer_serializer = SingerSerializer(data=singer_data)
-            if singer_serializer.is_valid():
-                singer_serializer.save()
-                return JsonResponse({'mess': 'Added Successfully'}, safe= False)
-            return JsonResponse(singer_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-        elif request.method == 'PUT':
-            singer_data = JSONParser().parse(request)
+    
+    elif request.method == 'POST':
+        singer_data = JSONParser().parse(request)
+        singer_serializer = SingerSerializer(data=singer_data)
+        if singer_serializer.is_valid():
+            singer_serializer.save()
+            return JsonResponse({'mess': 'Added Successfully'}, safe=False)
+        return JsonResponse("Failed to Add", safe=False, status=400)
+    
+    elif request.method == 'PUT':
+        singer_data = JSONParser().parse(request)
+        try:
             singer = Singer.objects.get(id_singer=id_singer)
-            singer_serializer = SingerSerializer(singer, data=singer_data)
+            singer_serializer = SingerSerializer(singer, data=singer_data, partial=True)  # Use partial update
             if singer_serializer.is_valid():
                 singer_serializer.save()
-                return JsonResponse({'mess': 'Updated Successfully'}, safe= False)
-            return JsonResponse(singer_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-        elif request.method == 'DELETE':
+                return JsonResponse({'mess': 'Updated Successfully'}, safe=False)
+            else:
+                # Return detailed error messages
+                return JsonResponse(singer_serializer.errors, safe=False, status=400)
+        except Singer.DoesNotExist:
+            return JsonResponse({'mess': 'Record not found'}, status=404)
+    
+    elif request.method == 'DELETE':
+        try:
             singer = Singer.objects.get(id_singer=id_singer)
             singer.delete()
-            return JsonResponse({'mess': 'Deleted Successfully'}, safe= False)
-    except Singer.DoesNotExist:
-        return JsonResponse({'mess': 'Record not found'}, status=status.HTTP_404_NOT_FOUND)
+            return JsonResponse({'mess': 'Deleted Successfully'}, safe=False)
+        except Singer.DoesNotExist:
+            return JsonResponse({'mess': 'Record not found'}, status=404)
 
 
 @csrf_exempt
