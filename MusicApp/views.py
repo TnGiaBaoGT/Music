@@ -62,6 +62,21 @@ def musicApiHTML(request, id_music=0):
         
         # Pass the serialized music data to the template for rendering
         return render(request, 'index.html', {'musics': music_serializer.data})
+        
+
+def like_music(request, music_id):
+    if request.method == 'PUT':
+        try:
+            music = Music.objects.get(id_music=music_id)
+        except Music.DoesNotExist:
+            return JsonResponse({'mess': 'Record not found'}, status=404)
+
+        music.num_vote += 1
+        music.save()
+        return JsonResponse({'num_vote': music.num_vote, 'mess': 'Updated Successfully'}, safe=False)
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+    
 
 @csrf_exempt
 def userApi(request, id_user=0):
