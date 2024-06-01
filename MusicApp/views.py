@@ -9,7 +9,8 @@ from django.shortcuts import render
 def musicApi(request, id_music=0):
     if request.method == 'GET':
         if id_music == 0:
-            music = Music.objects.all()
+            # Retrieve all music items and order them by id_music
+            music = Music.objects.all().order_by('id_music')
             music_serializer = MusicSerializer(music, many=True)
         else:
             try:
@@ -17,7 +18,7 @@ def musicApi(request, id_music=0):
                 music_serializer = MusicSerializer(music)
             except Music.DoesNotExist:
                 return JsonResponse({'mess': 'Record not found'}, status=404)
-        return JsonResponse({'music':music_serializer.data}, safe=False)
+        return JsonResponse({'music': music_serializer.data}, safe=False)
     
     elif request.method == 'POST':
         music_data = JSONParser().parse(request)
