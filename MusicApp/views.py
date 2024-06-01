@@ -63,7 +63,7 @@ def musicApiHTML(request, id_music=0):
         # Pass the serialized music data to the template for rendering
         return render(request, 'index.html', {'musics': music_serializer.data})
         
-
+@csrf_exempt
 def like_music(request, music_id):
     if request.method == 'PUT':
         try:
