@@ -54,7 +54,17 @@ class Singer (models.Model):
     name_singer = models.CharField(max_length=200)
     phone_singer = models.CharField(max_length=20)
     email_singer = models.EmailField(max_length=50)
-    genre_singer = models.CharField(max_length=50)
+    GENRE_CHOICES = [
+        ('POP', 'Pop'),
+        ('ROCK', 'Rock'),
+        ('JAZZ', 'Jazz'),
+        ('CLASSICAL', 'Classical'),
+        ('HIPHOP', 'Hip-Hop'),
+        ('REMIX', 'Remix'),
+        ('ROMANCE', 'Romance'),
+        ('BOLERO', 'Bolero'),
+    ]
+    genre_singer = models.CharField(max_length=50, choices= GENRE_CHOICES,default='Pop')
     sex_singer = models.CharField(max_length=50) 
     image_singer = models.ImageField(upload_to='singer_images/', null=True, blank=True, storage=RawMediaCloudinaryStorage())
 
