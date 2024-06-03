@@ -122,3 +122,12 @@ class Album (models.Model):
             }
             for music in self.music_id_album.all()
         ]
+
+class Purchase(models.Model):
+    id_purchase = models.AutoField(primary_key=True)
+    user_purchase = models.ForeignKey(User, on_delete=models.CASCADE)
+    music_purchase = models.ForeignKey(Music, on_delete=models.CASCADE)
+    purchase_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Purchase {self.id_purchase} | User: {self.user.name_user} | Music: {self.music.name_music}"
