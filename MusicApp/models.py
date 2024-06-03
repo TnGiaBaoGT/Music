@@ -90,13 +90,14 @@ class Vote (models.Model):
 
 
 
-class Transaction (models.Model):
+class Transaction(models.Model):
     id_tran = models.AutoField(primary_key=True)
     price_tran = models.FloatField(default=0)
+    user_id_tran = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    music_id_tran = models.ForeignKey(Music, on_delete=models.CASCADE, null=True)
+    
     def __str__(self):
         return f"Transaction {self.id_tran}"
-
-    user_id_tran = models.ForeignKey(User, on_delete=models.CASCADE, null= True)
 
 
 
@@ -127,7 +128,8 @@ class Purchase(models.Model):
     id_purchase = models.AutoField(primary_key=True)
     user_purchase = models.ForeignKey(User, on_delete=models.CASCADE)
     music_purchase = models.ForeignKey(Music, on_delete=models.CASCADE)
+    transaction_purchase = models.ForeignKey(Transaction, on_delete=models.CASCADE,null=True, default=None)
     purchase_date = models.DateTimeField(auto_now_add=True)
-
+    
     def __str__(self):
-        return f"Purchase {self.id_purchase} | User: {self.user.name_user} | Music: {self.music.name_music}"
+        return f"Purchase {self.id_purchase} | User: {self.user_purchase.name_user} | Music: {self.music_purchase.name_music}"
