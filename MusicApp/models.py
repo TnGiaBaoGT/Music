@@ -56,6 +56,7 @@ class Singer (models.Model):
     email_singer = models.EmailField(max_length=50)
     genre_singer = models.CharField(max_length=50)
     sex_singer = models.CharField(max_length=50) 
+    image_singer = models.ImageField(upload_to='singer_images/', null=True, blank=True, storage=RawMediaCloudinaryStorage())
 
     def __str__(self):
         return self.name_singer
