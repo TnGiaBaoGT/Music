@@ -1,10 +1,11 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Music, User, Singer, Vote, Transaction, Album
+from .models import Music, User, Purchase, Singer, Vote, Transaction, Album
 
 admin.site.register(Music)
 admin.site.register(User)
+admin.site.register(Purchase)
 admin.site.register(Singer)
 admin.site.register(Vote)
 admin.site.register(Transaction)
