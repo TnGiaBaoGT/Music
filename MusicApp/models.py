@@ -93,7 +93,6 @@ class Vote (models.Model):
 class Transaction (models.Model):
     id_tran = models.AutoField(primary_key=True)
     price_tran = models.FloatField(default=0)
-    type_tran = models.CharField(max_length=50)
     def __str__(self):
         return f"Transaction {self.id_tran}"
 
