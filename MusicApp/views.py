@@ -309,3 +309,49 @@ def albumApi(request, id_album=0):
             return JsonResponse({'mess': 'Deleted Successfully'}, safe=False)
         except Album.DoesNotExist:
             return JsonResponse({'mess': 'Record not found'}, status=404)
+
+
+@csrf_exempt
+def purchaseApi(request, id_purchase=0):
+    if request.method == 'GET':
+        if id_purchase == 0:
+            purchase = Purchase.objects.all()
+            purchase_serializer = PurchaseSerializer(purchase, many=True)
+        else:
+            try:
+                purchase = Purchase.objects.get(id_purchase=id_purchase)
+                purchase_serializer = PurchaseSerializer(purchase)
+            except Purchase.DoesNotExist:
+                return JsonResponse({'mess': 'Record not found'}, status=404)
+        return JsonResponse({'purchase':purchase_serializer.data}, safe=False)
+        
+    
+    elif request.method == 'POST':
+        purchase_data = JSONParser().parse(request)
+        purchase_serializer = PurchaseSerializer(data=purchase_data)
+        if purchase_serializer.is_valid():
+            purchase_serializer.save()
+            return JsonResponse({'mess': 'Added Successfully'}, safe=False)
+        return JsonResponse("Failed to Add", safe=False, status=400)
+    
+    elif request.method == 'PUT':
+        purchase_data = JSONParser().parse(request)
+        try:
+            purchase = Purchase.objects.get(id_purchase=id_purchase)
+            purchase_serializer = PurchaseSerializer(purchase, data=purchase_data, partial=True)  # Use partial update
+            if purchase_serializer.is_valid():
+                purchase_serializer.save()
+                return JsonResponse({'mess': 'Updated Successfully'}, safe=False)
+            else:
+                # Return detailed error messages
+                return JsonResponse(purchase_serializer.errors, safe=False, status=400)
+        except Purchase.DoesNotExist:
+            return JsonResponse({'mess': 'Record not found'}, status=404)
+    
+    elif request.method == 'DELETE':
+        try:
+            purchase = Purchase.objects.get(id_purchase=id_purchase)
+            purchase.delete()
+            return JsonResponse({'mess': 'Deleted Successfully'}, safe=False)
+        except Purchase.DoesNotExist:
+            return JsonResponse({'mess': 'Record not found'}, status=404)
