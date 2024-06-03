@@ -220,40 +220,48 @@ def voteApi(request, id_vote=0):
 
 @csrf_exempt
 def transactionApi(request, id_transaction=0):
-    try:
-        if request.method == 'GET':
-            if id_transaction == 0:
-                transaction = Transaction.objects.all()
-                transaction_serializer = TransactionSerializer(transaction, many=True)
-            else:
+    if request.method == 'GET':
+        if id_transaction == 0:
+            transaction = Transaction.objects.all()
+            transaction_serializer = TransactionSerializer(transaction, many=True)
+        else:
+            try:
                 transaction = Transaction.objects.get(id_transaction=id_transaction)
                 transaction_serializer = TransactionSerializer(transaction)
-            return JsonResponse(transaction_serializer.data, safe= False)
+            except Transaction.DoesNotExist:
+                return JsonResponse({'mess': 'Record not found'}, status=404)
+        return JsonResponse({'transaction':transaction_serializer.data}, safe=False)
         
-        elif request.method == 'POST':
-            transaction_data = JSONParser().parse(request)
-            transaction_serializer = TransactionSerializer(data=transaction_data)
-            if transaction_serializer.is_valid():
-                transaction_serializer.save()
-                return JsonResponse({'mess': 'Added Successfully'}, safe= False)
-            return JsonResponse(transaction_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-        elif request.method == 'PUT':
-            transaction_data = JSONParser().parse(request)
+    
+    elif request.method == 'POST':
+        transaction_data = JSONParser().parse(request)
+        transaction_serializer = TransactionSerializer(data=transaction_data)
+        if transaction_serializer.is_valid():
+            transaction_serializer.save()
+            return JsonResponse({'mess': 'Added Successfully'}, safe=False)
+        return JsonResponse("Failed to Add", safe=False, status=400)
+    
+    elif request.method == 'PUT':
+        transaction_data = JSONParser().parse(request)
+        try:
             transaction = Transaction.objects.get(id_transaction=id_transaction)
-            transaction_serializer = TransactionSerializer(transaction, data=transaction_data)
+            transaction_serializer = TransactionSerializer(transaction, data=transaction_data, partial=True)  # Use partial update
             if transaction_serializer.is_valid():
                 transaction_serializer.save()
-                return JsonResponse({'mess': 'Updated Successfully'}, safe= False)
-            return JsonResponse(transaction_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-        elif request.method == 'DELETE':
+                return JsonResponse({'mess': 'Updated Successfully'}, safe=False)
+            else:
+                # Return detailed error messages
+                return JsonResponse(transaction_serializer.errors, safe=False, status=400)
+        except Transaction.DoesNotExist:
+            return JsonResponse({'mess': 'Record not found'}, status=404)
+    
+    elif request.method == 'DELETE':
+        try:
             transaction = Transaction.objects.get(id_transaction=id_transaction)
             transaction.delete()
-            return JsonResponse({'mess': 'Deleted Successfully'}, safe= False)
-    except Transaction.DoesNotExist:
-        return JsonResponse({'mess': 'Record not found'}, status=status.HTTP_404_NOT_FOUND)
-
+            return JsonResponse({'mess': 'Deleted Successfully'}, safe=False)
+        except Transaction.DoesNotExist:
+            return JsonResponse({'mess': 'Record not found'}, status=404)
 
 
 
