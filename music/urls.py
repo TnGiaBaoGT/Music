@@ -48,6 +48,9 @@ urlpatterns = [
     path('purchases/', views.purchaseApi),
     path('purchase/<int:id_purchase>', views.purchaseApi),
 
+    path('likes/', views.likeApi),
+    path('likes/<int:id_like>', views.likeApi),
+
     path('music/<int:music_id>/like/', views.like_music),
     path('music/<int:music_id>/unlike/', views.unlike_music),
 ]
