@@ -7,7 +7,7 @@ from MusicApp.serializers import MusicSerializer, UserSerializer, SingerSerializ
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
-
+import json
 
 @csrf_exempt
 def musicApi(request, id_music=0):
