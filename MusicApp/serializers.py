@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from MusicApp.models import Music, User, Singer, Vote, Transaction, Album, Purchase
+from MusicApp.models import Music, User, Singer, Vote, Transaction, Album, Purchase, Like
 
 class MusicSerializer(serializers.ModelSerializer):
     class Meta:
@@ -40,4 +40,9 @@ class AlbumSerializer(serializers.ModelSerializer):
 class PurchaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Purchase
+        fields = '__all__'
+
+class LikeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Like
         fields = '__all__'
