@@ -29,7 +29,6 @@ urlpatterns = [
     path('musics/', views.musicApi),
     path('music/', views.musicApiHTML, name='index'),
     path('musics/<int:id_music>', views.musicApi),
-    path('musiclikes/<int:music_id>', views.like_music),
 
     path('users/', views.userApi),
     path('users/<int:id_user>', views.userApi),
@@ -48,6 +47,9 @@ urlpatterns = [
 
     path('purchases/', views.purchaseApi),
     path('purchase/<int:id_purchase>', views.purchaseApi),
+
+    path('music/<int:music_id>/like/', views.like_music),
+    path('music/<int:music_id>/unlike/', views.unlike_music),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
