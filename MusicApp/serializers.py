@@ -42,6 +42,7 @@ class PurchaseSerializer(serializers.ModelSerializer):
         model = Purchase
         fields = '__all__'
 
+
 class LikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Like
