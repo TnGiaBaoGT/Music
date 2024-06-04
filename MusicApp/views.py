@@ -2,8 +2,8 @@ from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
-from MusicApp.models import Music, User, Singer, Vote, Transaction, Album
-from MusicApp.serializers import MusicSerializer, UserSerializer, SingerSerializer, VoteSerializer, TransactionSerializer, AlbumSerializer
+from MusicApp.models import Music, User, Singer, Vote, Transaction, Album, Like
+from MusicApp.serializers import MusicSerializer, UserSerializer, SingerSerializer, VoteSerializer, TransactionSerializer, AlbumSerializer, LikeSerializer
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
@@ -402,4 +402,49 @@ def purchaseApi(request, id_purchase=0):
             purchase.delete()
             return JsonResponse({'mess': 'Deleted Successfully'}, safe=False)
         except Purchase.DoesNotExist:
+            return JsonResponse({'mess': 'Record not found'}, status=404)
+
+@csrf_exempt
+def likeApi(request, id_like=0):
+    if request.method == 'GET':
+        if id_like == 0:
+            like = Like.objects.all()
+            like_serializer = LikeSerializer(like, many=True)
+        else:
+            try:
+                like = Like.objects.get(id_like=id_like)
+                like_serializer = LikeSerializer(like)
+            except Like.DoesNotExist:
+                return JsonResponse({'mess': 'Record not found'}, status=404)
+        return JsonResponse({'like':like_serializer.data}, safe=False)
+        
+    
+    elif request.method == 'POST':
+        like_data = JSONParser().parse(request)
+        like_serializer = LikeSerializer(data=like_data)
+        if like_serializer.is_valid():
+            like_serializer.save()
+            return JsonResponse({'mess': 'Added Successfully'}, safe=False)
+        return JsonResponse("Failed to Add", safe=False, status=400)
+    
+    elif request.method == 'PUT':
+        like_data = JSONParser().parse(request)
+        try:
+            like = Like.objects.get(id_like=id_like)
+            like_serializer = LikeSerializer(like, data=like_data, partial=True)  # Use partial update
+            if like_serializer.is_valid():
+                like_serializer.save()
+                return JsonResponse({'mess': 'Updated Successfully'}, safe=False)
+            else:
+                # Return detailed error messages
+                return JsonResponse(like_serializer.errors, safe=False, status=400)
+        except Like.DoesNotExist:
+            return JsonResponse({'mess': 'Record not found'}, status=404)
+    
+    elif request.method == 'DELETE':
+        try:
+            like = Like.objects.get(id_like=id_like)
+            like.delete()
+            return JsonResponse({'mess': 'Deleted Successfully'}, safe=False)
+        except Like.DoesNotExist:
             return JsonResponse({'mess': 'Record not found'}, status=404)
