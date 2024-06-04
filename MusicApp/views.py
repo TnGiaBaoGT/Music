@@ -69,8 +69,11 @@ def musicApiHTML(request, id_music=0):
 def like_music(request, music_id):
     if request.method == 'POST':
         music = get_object_or_404(Music, id=music_id)
-        request.user.like_song(music)
-        return JsonResponse({'status': 'liked', 'music_id': music_id})
+        if request.user.is_authenticated:
+            request.user.like_song(music)
+            return JsonResponse({'status': 'liked', 'music_id': music_id})
+        else:
+            return JsonResponse({'error': 'User not authenticated'}, status=403)
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 @csrf_exempt
