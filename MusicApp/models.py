@@ -45,7 +45,18 @@ class User (models.Model):
     ]
 
     name_role = models.CharField(max_length=100, choices=ROLE_CHOICES,default='User')
+    
+    def like_song(self, song):
+        like, created = Like.objects.get_or_create(user=self, music=song)
+        if created:
+            song.num_vote += 1
+            song.save()
+        return like
 
+    def unlike_song(self, song):
+        Like.objects.filter(user=self, music=song).delete()
+        song.num_vote = max(0, song.num_vote - 1)
+        song.save()
 
 
 
@@ -133,3 +144,14 @@ class Purchase(models.Model):
     
     def __str__(self):
         return f"Purchase {self.id_purchase} | User: {self.user_purchase.name_user} | Music: {self.music_purchase.name_music}"
+
+class Like(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    music = models.ForeignKey(Music, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'music')
+
+    def __str__(self):
+        return f"{self.user.name_user} likes {self.music.name_music}"
