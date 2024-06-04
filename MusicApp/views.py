@@ -72,19 +72,58 @@ def musicApiHTML(request, id_music=0):
 def like_music(request, music_id):
     if request.method == 'POST':
         music = get_object_or_404(Music, id_music=music_id)
-        music.num_vote += 1
-        music.save()
-        return JsonResponse({'status': 'liked', 'music_id': music_id})
+        
+        # Get the JSON data from the request body
+        try:
+            data = json.loads(request.body)
+            user_id = data.get('user_id')
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON data'}, status=400)
+        
+        if user_id:
+            user_exists = User.objects.filter(id_user=user_id).exists()
+            if user_exists:
+                like, created = Like.objects.get_or_create(user_id=user_id, music=music)
+                if created:
+                    music.num_vote += 1
+                    music.save()
+                    return JsonResponse({'status': 'liked', 'music_id': music_id})
+                else:
+                    return JsonResponse({'status': 'already liked', 'music_id': music_id})
+            else:
+                return JsonResponse({'error': 'User does not exist'}, status=404)
+        else:
+            return JsonResponse({'error': 'user_id is missing'}, status=400)
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
 
 
 @csrf_exempt
 def unlike_music(request, music_id):
     if request.method == 'POST':
         music = get_object_or_404(Music, id_music=music_id)
-        music.num_vote -= 1
-        music.save()
-        return JsonResponse({'status': 'unliked', 'music_id': music_id})
+        
+        try:
+            data = json.loads(request.body)
+            user_id = data.get('user_id')
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON data'}, status=400)
+        
+        if user_id:
+            user_exists = User.objects.filter(id_user=user_id).exists()
+            if user_exists:
+                like = Like.objects.filter(user_id=user_id, music=music)
+                if like.exists():
+                    like.delete()
+                    music.num_vote = max(0, music.num_vote - 1)
+                    music.save()
+                    return JsonResponse({'status': 'unliked', 'music_id': music_id})
+                else:
+                    return JsonResponse({'status': 'not liked', 'music_id': music_id})
+            else:
+                return JsonResponse({'error': 'User does not exist'}, status=404)
+        else:
+            return JsonResponse({'error': 'user_id is missing'}, status=400)
     return JsonResponse({'error': 'Invalid request'}, status=400)
     
 
