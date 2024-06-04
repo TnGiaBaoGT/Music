@@ -5,6 +5,7 @@ from django.http.response import JsonResponse
 from MusicApp.models import Music, User, Singer, Vote, Transaction, Album
 from MusicApp.serializers import MusicSerializer, UserSerializer, SingerSerializer, VoteSerializer, TransactionSerializer, AlbumSerializer
 from django.shortcuts import render
+from django.shortcuts import get_object_or_404
 @csrf_exempt
 def musicApi(request, id_music=0):
     if request.method == 'GET':
@@ -66,16 +67,18 @@ def musicApiHTML(request, id_music=0):
         
 @csrf_exempt
 def like_music(request, music_id):
-    if request.method == 'PUT':
-        try:
-            music = Music.objects.get(id_music=music_id)
-        except Music.DoesNotExist:
-            return JsonResponse({'mess': 'Record not found'}, status=404)
+    if request.method == 'POST':
+        music = get_object_or_404(Music, id=music_id)
+        request.user.like_song(music)
+        return JsonResponse({'status': 'liked', 'music_id': music_id})
+    return JsonResponse({'error': 'Invalid request'}, status=400)
 
-        music.num_vote += 1
-        music.save()
-        return JsonResponse({'num_vote': music.num_vote, 'mess': 'Updated Successfully'}, safe=False)
-
+@csrf_exempt
+def unlike_music(request, music_id):
+    if request.method == 'POST':
+        music = get_object_or_404(Music, id=music_id)
+        request.user.unlike_song(music)
+        return JsonResponse({'status': 'unliked', 'music_id': music_id})
     return JsonResponse({'error': 'Invalid request'}, status=400)
     
 
