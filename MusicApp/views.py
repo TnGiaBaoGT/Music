@@ -71,33 +71,19 @@ def musicApiHTML(request, id_music=0):
 @csrf_exempt
 def like_music(request, music_id):
     if request.method == 'POST':
-        try:
-            user_id = request.POST.get('user_id')
-            if not user_id:
-                return JsonResponse({'error': 'User ID not provided'}, status=400)
-
-            user = get_object_or_404(get_user_model(), id=user_id)
-            music = get_object_or_404(Music, id=music_id)
-
-            # Assuming like_song is defined on the user model
-            if hasattr(user, 'like_song'):
-                user.like_song(music)
-                return JsonResponse({'status': 'liked', 'music_id': music_id})
-            else:
-                return JsonResponse({'error': 'like_song method not found on user'}, status=500)
-        except get_user_model().DoesNotExist:
-            return JsonResponse({'error': 'User not found'}, status=404)
-        except Music.DoesNotExist:
-            return JsonResponse({'error': 'Music not found'}, status=404)
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
+        music = get_object_or_404(Music, id_music=music_id)
+        music.num_vote += 1
+        music.save()
+        return JsonResponse({'status': 'liked', 'music_id': music_id})
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
 
 @csrf_exempt
 def unlike_music(request, music_id):
     if request.method == 'POST':
-        music = get_object_or_404(Music, id=music_id)
-        request.user.unlike_song(music)
+        music = get_object_or_404(Music, id_music=music_id)
+        music.num_vote -= 1
+        music.save()
         return JsonResponse({'status': 'unliked', 'music_id': music_id})
     return JsonResponse({'error': 'Invalid request'}, status=400)
     
