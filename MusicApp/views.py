@@ -317,7 +317,7 @@ def transactionApi(request, id_transaction=0):
 def albumApi(request, id_album=0):
     if request.method == 'GET':
         if id_album == 0:
-            album = Album.objects.all()
+            album = Album.objects.all().order_by('id_album')
             album_serializer = AlbumSerializer(album, many=True)
         else:
             try:
