@@ -408,7 +408,7 @@ def purchaseApi(request, id_purchase=0):
 def likeApi(request, id_like=0):
     if request.method == 'GET':
         if id_like == 0:
-            like = Like.objects.all()
+            like = Like.objects.all().order_by('timestamp')
             like_serializer = LikeSerializer(like, many=True)
         else:
             try:
