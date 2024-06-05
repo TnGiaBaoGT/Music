@@ -44,6 +44,17 @@ class PurchaseSerializer(serializers.ModelSerializer):
 
 
 class LikeSerializer(serializers.ModelSerializer):
+    music_info = serializers.SerializerMethodField() 
     class Meta:
         model = Like
         fields = '__all__'
+    def get_music_info(self, obj):
+        music = obj.music
+        return {
+            'name_music': music.name_music,
+            'music_url': music.music.url if music.music else None,
+            'name_singer_music': music.name_singer_music,
+            'image_music': music.image_music.url if music.image_music else None
+        }
+
+    
