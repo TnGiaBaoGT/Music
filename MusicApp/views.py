@@ -6,10 +6,12 @@ from MusicApp.models import Music, User, Singer, Vote, Transaction, Album, Like
 from MusicApp.serializers import MusicSerializer, UserSerializer, SingerSerializer, VoteSerializer, TransactionSerializer, AlbumSerializer, LikeSerializer
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
-from django.contrib.auth import get_user_model
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.decorators import parser_classes
 import json
 
 @csrf_exempt
+@parser_classes([MultiPartParser, FormParser])
 def musicApi(request, id_music=0):
     if request.method == 'GET':
         if id_music == 0:
@@ -25,8 +27,7 @@ def musicApi(request, id_music=0):
         return JsonResponse({'music': music_serializer.data}, safe=False)
     
     elif request.method == 'POST':
-        music_data = JSONParser().parse(request)
-        music_serializer = MusicSerializer(data=music_data)
+        music_serializer = MusicSerializer(data=request.data)
         if music_serializer.is_valid():
             music_serializer.save()
             return JsonResponse({'mess': 'Added Successfully'}, safe=False)
