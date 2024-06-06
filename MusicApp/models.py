@@ -1,6 +1,25 @@
 from django.db import models
 from cloudinary_storage.storage import RawMediaCloudinaryStorage
 
+class User (models.Model):
+    id_user = models.AutoField(primary_key=True)
+    name_user = models.CharField(max_length=200)
+    email_user = models.EmailField(max_length=50)
+    pass_user = models.CharField(max_length=200)
+    phone_user = models.CharField(max_length=20)
+    status_user = models.BooleanField(default= True)
+    def __str__(self):
+        return f"ID: {self.id_user} { ''*20} | Name: {self.name_user}"
+
+
+    ROLE_CHOICES = [
+        ('USER', 'User'),
+        ('COMPOSER', 'Composer'),
+    ]
+
+    name_role = models.CharField(max_length=100, choices=ROLE_CHOICES,default='User')
+
+
 class Music (models.Model):
     id_music = models.AutoField(primary_key=True)
     name_music = models.CharField(max_length=200)
@@ -23,40 +42,10 @@ class Music (models.Model):
     genre_music = models.CharField(max_length=100, choices=GENRE_CHOICES, default='Pop')
     image_music = models.ImageField(upload_to='music_images/', null=True, blank=True, storage=RawMediaCloudinaryStorage())
     num_vote = models.PositiveIntegerField(default=0)
+    composer = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, limit_choices_to={'name_role': 'COMPOSER'}, related_name='music_composed')
     
     def __str__(self):
         return self.name_music
-
-
-class User (models.Model):
-    id_user = models.AutoField(primary_key=True)
-    name_user = models.CharField(max_length=200)
-    email_user = models.EmailField(max_length=50)
-    pass_user = models.CharField(max_length=200)
-    phone_user = models.CharField(max_length=20)
-    status_user = models.BooleanField(default= True)
-    def __str__(self):
-        return f"ID: {self.id_user} { ''*20} | Name: {self.name_user}"
-
-
-    ROLE_CHOICES = [
-        ('USER', 'User'),
-        ('COMPOSER', 'Composer'),
-    ]
-
-    name_role = models.CharField(max_length=100, choices=ROLE_CHOICES,default='User')
-    
-    def like_song(self, song):
-        like, created = Like.objects.get_or_create(user=self, music=song)
-        if created:
-            song.num_vote += 1
-            song.save()
-        return like
-
-    def unlike_song(self, song):
-        Like.objects.filter(user=self, music=song).delete()
-        song.num_vote = max(0, song.num_vote - 1)
-        song.save()
 
 
 
