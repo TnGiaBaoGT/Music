@@ -7,12 +7,14 @@ from MusicApp.serializers import MusicSerializer, UserSerializer, SingerSerializ
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework.decorators import parser_classes
+from rest_framework.request import Request
 import json
 
 @csrf_exempt
-@parser_classes([MultiPartParser, FormParser])
 def musicApi(request, id_music=0):
+    # Wrap the WSGIRequest with DRF Request to use parsers
+    drf_request = Request(request, parsers=[MultiPartParser(), FormParser()])
+
     if request.method == 'GET':
         if id_music == 0:
             # Retrieve all music items and order them by id_music
@@ -25,26 +27,25 @@ def musicApi(request, id_music=0):
             except Music.DoesNotExist:
                 return JsonResponse({'mess': 'Record not found'}, status=404)
         return JsonResponse({'music': music_serializer.data}, safe=False)
-    
+
     elif request.method == 'POST':
-        music_serializer = MusicSerializer(data=request.data)
+        music_serializer = MusicSerializer(data=drf_request.data)
         if music_serializer.is_valid():
             music_serializer.save()
             return JsonResponse({'mess': 'Added Successfully'}, safe=False)
-        return JsonResponse("Failed to Add", safe=False, status=400)
-    
+        return JsonResponse({'mess': 'Failed to Add'}, safe=False, status=400)
+
     elif request.method == 'PUT':
-        music_data = JSONParser().parse(request)
         try:
             music = Music.objects.get(id_music=id_music)
-            music_serializer = MusicSerializer(music, data=music_data)
+            music_serializer = MusicSerializer(music, data=drf_request.data)
             if music_serializer.is_valid():
                 music_serializer.save()
                 return JsonResponse({'mess': 'Updated Successfully'}, safe=False)
-            return JsonResponse("Failed to Update", safe=False, status=400)
+            return JsonResponse({'mess': 'Failed to Update'}, safe=False, status=400)
         except Music.DoesNotExist:
             return JsonResponse({'mess': 'Record not found'}, status=404)
-    
+
     elif request.method == 'DELETE':
         try:
             music = Music.objects.get(id_music=id_music)
