@@ -33,7 +33,10 @@ def musicApi(request, id_music=0):
         if music_serializer.is_valid():
             music_serializer.save()
             return JsonResponse({'mess': 'Added Successfully'}, safe=False)
-        return JsonResponse({'mess': 'Failed to Add'}, safe=False, status=400)
+        else:
+            # Print the errors to debug
+            print(music_serializer.errors)
+            return JsonResponse({'mess': 'Failed to Add', 'errors': music_serializer.errors}, safe=False, status=400)
 
     elif request.method == 'PUT':
         try:
