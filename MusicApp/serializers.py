@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from MusicApp.models import Music, User, Singer, Vote, Transaction, Album, Purchase, Like
+from MusicApp.models import Music, User, Singer, Vote, Transaction, Album, Purchase, Like, MusicBundle, BundlePurchase
 
 class MusicSerializer(serializers.ModelSerializer):
     class Meta:
@@ -57,4 +57,12 @@ class LikeSerializer(serializers.ModelSerializer):
             'image_music': music.image_music.url if music.image_music else None
         }
 
-    
+class MusicBundleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MusicBundle
+        fields = '__all__'
+
+class BundlePurchaseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BundlePurchase
+        fields = '__all__'
