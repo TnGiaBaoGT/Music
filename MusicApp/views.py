@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.request import Request
 import json
+from django.core.exceptions import ObjectDoesNotExist
 
 @csrf_exempt
 def musicApi(request, id_music=0):
