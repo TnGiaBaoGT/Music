@@ -2,8 +2,8 @@ from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
-from MusicApp.models import Music, User, Singer, Vote, Transaction, Album, Like
-from MusicApp.serializers import MusicSerializer, UserSerializer, SingerSerializer, VoteSerializer, TransactionSerializer, AlbumSerializer, LikeSerializer
+from MusicApp.models import Music, User, Singer, Vote, Transaction, Album, Like, MusicBundle,BundlePurchase
+from MusicApp.serializers import MusicSerializer, UserSerializer, SingerSerializer, VoteSerializer, TransactionSerializer, AlbumSerializer, LikeSerializer,MusicBundleSerializer,BundlePurchaseSerializer
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -452,4 +452,102 @@ def likeApi(request, id_like=0):
             like.delete()
             return JsonResponse({'mess': 'Deleted Successfully'}, safe=False)
         except Like.DoesNotExist:
+            return JsonResponse({'mess': 'Record not found'}, status=404)
+
+
+@csrf_exempt
+def musicbundleApi(request, id_musicbundle=0):
+    if request.method == 'GET':
+        if id_musicbundle == 0:
+            musicbundle = MusicBundle.objects.all().order_by('id_bundle')
+            musicbundle_serializer = MusicBundleSerializer(musicbundle, many=True)
+        else:
+            try:
+                musicbundle = MusicBundle.objects.get(id_musicbundle=id_musicbundle)
+                musicbundle_serializer = MusicBundleSerializer(musicbundle)
+            except MusicBundle.DoesNotExist:
+                return JsonResponse({'mess': 'Record not found'}, status=404)
+        return JsonResponse({'musicbundle':musicbundle_serializer.data}, safe=False)
+        
+    
+    elif request.method == 'POST':
+        musicbundle_data = JSONParser().parse(request)
+        musicbundle_serializer = MusicBundleSerializer(data=musicbundle_data)
+        if musicbundle_serializer.is_valid():
+            musicbundle_serializer.save()
+            return JsonResponse({'mess': 'Added Successfully'}, safe=False)
+        return JsonResponse("Failed to Add", safe=False, status=400)
+    
+    elif request.method == 'PUT':
+        musicbundle_data = JSONParser().parse(request)
+        try:
+            musicbundle = MusicBundle.objects.get(id_musicbundle=id_musicbundle)
+            musicbundle_serializer = MusicBundleSerializer(musicbundle, data=musicbundle_data, partial=True)  # Use partial update
+            if musicbundle_serializer.is_valid():
+                musicbundle_serializer.save()
+                return JsonResponse({'mess': 'Updated Successfully'}, safe=False)
+            else:
+                # Return detailed error messages
+                return JsonResponse(musicbundle_serializer.errors, safe=False, status=400)
+        except MusicBundle.DoesNotExist:
+            return JsonResponse({'mess': 'Record not found'}, status=404)
+    
+    elif request.method == 'DELETE':
+        try:
+            musicbundle = MusicBundle.objects.get(id_musicbundle=id_musicbundle)
+            musicbundle.delete()
+            return JsonResponse({'mess': 'Deleted Successfully'}, safe=False)
+        except MusicBundle.DoesNotExist:
+            return JsonResponse({'mess': 'Record not found'}, status=404)
+        
+
+@csrf_exempt
+def bundlepurchaseApi(request, id_bundlepurchase=0, id_user=0):
+    if request.method == 'GET':
+        if id_user > 0:
+            try:
+                bundlepurchase = BundlePurchase.objects.filter(user_id=id_user).order_by('id_bundle_purchase')
+                bundlepurchase_serializer = BundlePurchaseSerializer(bundlepurchase, many=True)
+                return JsonResponse({'bundlepurchase': bundlepurchase_serializer.data}, safe=False)
+            except ObjectDoesNotExist:
+                return JsonResponse({'mess': 'Record not found'}, status=404)
+        
+        if id_bundlepurchase > 0:
+            try:
+                bundlepurchase = BundlePurchase.objects.get(id_bundle_purchase=id_bundlepurchase)
+                bundlepurchase_serializer = BundlePurchaseSerializer(bundlepurchase)
+                return JsonResponse({'bundlepurchase': bundlepurchase_serializer.data}, safe=False)
+            except BundlePurchase.DoesNotExist:
+                return JsonResponse({'mess': 'Record not found'}, status=404)
+        
+        bundlepurchase = BundlePurchase.objects.all().order_by('id_bundle_purchase')
+        bundlepurchase_serializer = BundlePurchaseSerializer(bundlepurchase, many=True)
+        return JsonResponse({'bundlepurchase': bundlepurchase_serializer.data}, safe=False)
+    
+    elif request.method == 'POST':
+        bundlepurchase_data = JSONParser().parse(request)
+        bundlepurchase_serializer = BundlePurchaseSerializer(data=bundlepurchase_data)
+        if bundlepurchase_serializer.is_valid():
+            bundlepurchase_serializer.save()
+            return JsonResponse({'mess': 'Added Successfully'}, safe=False)
+        return JsonResponse(bundlepurchase_serializer.errors, safe=False, status=400)
+    
+    elif request.method == 'PUT':
+        bundlepurchase_data = JSONParser().parse(request)
+        try:
+            bundlepurchase = BundlePurchase.objects.get(id_bundle_purchase=id_bundlepurchase)
+            bundlepurchase_serializer = BundlePurchaseSerializer(bundlepurchase, data=bundlepurchase_data, partial=True)  # Use partial update
+            if bundlepurchase_serializer.is_valid():
+                bundlepurchase_serializer.save()
+                return JsonResponse({'mess': 'Updated Successfully'}, safe=False)
+            return JsonResponse(bundlepurchase_serializer.errors, safe=False, status=400)
+        except BundlePurchase.DoesNotExist:
+            return JsonResponse({'mess': 'Record not found'}, status=404)
+    
+    elif request.method == 'DELETE':
+        try:
+            bundlepurchase = BundlePurchase.objects.get(id_bundle_purchase=id_bundlepurchase)
+            bundlepurchase.delete()
+            return JsonResponse({'mess': 'Deleted Successfully'}, safe=False)
+        except BundlePurchase.DoesNotExist:
             return JsonResponse({'mess': 'Record not found'}, status=404)
