@@ -1,5 +1,7 @@
 from django.db import models
 from cloudinary_storage.storage import RawMediaCloudinaryStorage
+from django.utils import timezone
+from datetime import timedelta
 
 class User (models.Model):
     id_user = models.AutoField(primary_key=True)
@@ -89,18 +91,6 @@ class Vote (models.Model):
         return self.user_id_vote.name_user if self.user_id_vote else 'Anonymous'
 
 
-
-class Transaction(models.Model):
-    id_tran = models.AutoField(primary_key=True)
-    price_tran = models.FloatField(default=0)
-    user_id_tran = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    music_id_tran = models.ForeignKey(Music, on_delete=models.CASCADE, null=True)
-    
-    def __str__(self):
-        return f"Transaction {self.id_tran}"
-
-
-
 class Album (models.Model):
     id_album = models.AutoField(primary_key=True)
     name_album = models.CharField(max_length=50)
@@ -124,15 +114,6 @@ class Album (models.Model):
             for music in self.music_id_album.all()
         ]
 
-class Purchase(models.Model):
-    id_purchase = models.AutoField(primary_key=True)
-    user_purchase = models.ForeignKey(User, on_delete=models.CASCADE)
-    music_purchase = models.ForeignKey(Music, on_delete=models.CASCADE)
-    transaction_purchase = models.ForeignKey(Transaction, on_delete=models.CASCADE,null=True, default=None)
-    purchase_date = models.DateTimeField(auto_now_add=True)
-    
-    def __str__(self):
-        return f"Purchase {self.id_purchase} | User: {self.user_purchase.name_user} | Music: {self.music_purchase.name_music}"
 
 class Like(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -144,3 +125,53 @@ class Like(models.Model):
 
     def __str__(self):
         return f"{self.user.name_user} likes {self.music.name_music}"
+
+class Transaction(models.Model):
+    id_tran = models.AutoField(primary_key=True)
+    user_id_tran = models.ForeignKey(User, on_delete=models.CASCADE,null=True,blank=True)
+    total_price_tran = models.FloatField(default=0)
+    purchase_date = models.DateTimeField(default=timezone.now)
+    is_bundle = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return f"Transaction {self.id_tran} | User: {self.user_id_tran.name_user} | Total Price: {self.total_price_tran}"
+    
+
+class MusicBundle(models.Model):
+    id_bundle = models.AutoField(primary_key=True)
+    name_bundle = models.CharField(max_length=200)
+    description_bundle = models.TextField()
+    price_bundle = models.FloatField(default=0)
+    music_tracks = models.ManyToManyField(Music)
+    is_free = models.BooleanField(default=False)  # Indicates if the bundle is free
+    access_duration_days = models.IntegerField(default=30)  # Access duration in days
+    
+    def __str__(self):
+        return f"Bundle {self.name_bundle} | Price: {self.price_bundle}"
+
+class BundlePurchase(models.Model):
+    id_bundle_purchase = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    bundle = models.ForeignKey(MusicBundle, on_delete=models.CASCADE)
+    purchase_date = models.DateTimeField(auto_now_add=True)
+    
+    def is_access_valid(self):
+        return self.purchase_date + timedelta(days=self.bundle.access_duration_days) > timezone.now()
+    
+    def __str__(self):
+        return f"Bundle Purchase {self.id_bundle_purchase} | User: {self.user.name_user} | Bundle: {self.bundle.name_bundle}"
+
+class Purchase(models.Model):
+    id_purchase = models.AutoField(primary_key=True)
+    transaction_purchase = models.ForeignKey(Transaction, on_delete=models.CASCADE,null=True,blank=True)
+    music_purchase = models.ForeignKey(Music, on_delete=models.CASCADE, null=True, blank=True)
+    bundle_purchase = models.ForeignKey(MusicBundle, on_delete=models.CASCADE, null=True, blank=True)
+    
+    def __str__(self):
+        if self.music_purchase:
+            return f"Purchase {self.id_purchase} | Music: {self.music_purchase.name_music}"
+        if self.bundle_purchase:
+            return f"Purchase {self.id_purchase} | Bundle: {self.bundle_purchase.name_bundle}"
+
+    
+
