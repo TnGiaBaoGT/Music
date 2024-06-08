@@ -53,6 +53,13 @@ urlpatterns = [
 
     path('music/<int:music_id>/like/', views.like_music),
     path('music/<int:music_id>/unlike/', views.unlike_music),
+
+    path('musicbundles/', views.musicbundleApi),
+    path('musicbundles/<int:id_musicbundle>/', views.musicbundleApi),
+
+    path('bundlepurchase/', views.bundlepurchaseApi),
+    path('bundlepurchase/<int:id_bundlepurchase>/', views.bundlepurchaseApi),
+    path('bundlepurchase/user/<int:id_user>/', views.bundlepurchaseApi),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
