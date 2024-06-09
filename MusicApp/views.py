@@ -367,19 +367,27 @@ def albumApi(request, id_album=0):
 
 
 @csrf_exempt
-def purchaseApi(request, id_purchase=0):
+def purchaseApi(request, id_purchase=0, id_user=0):
     if request.method == 'GET':
-        if id_purchase == 0:
-            purchase = Purchase.objects.all()
-            purchase_serializer = PurchaseSerializer(purchase, many=True)
-        else:
+        if id_user > 0:
+            try:
+                purchase = Purchase.objects.filter(user_id=id_user).order_by('id_purchase')
+                purchase_serializer = PurchaseSerializer(purchase, many=True)
+                return JsonResponse({'purchase': purchase_serializer.data}, safe=False)
+            except ObjectDoesNotExist:
+                return JsonResponse({'mess': 'Record not found'}, status=404)
+        
+        if id_purchase > 0:
             try:
                 purchase = Purchase.objects.get(id_purchase=id_purchase)
                 purchase_serializer = PurchaseSerializer(purchase)
+                return JsonResponse({'purchase': purchase_serializer.data}, safe=False)
             except Purchase.DoesNotExist:
                 return JsonResponse({'mess': 'Record not found'}, status=404)
-        return JsonResponse({'purchase':purchase_serializer.data}, safe=False)
         
+        purchase = Purchase.objects.all().order_by('id_purchase')
+        purchase_serializer = PurchaseSerializer(purchase, many=True)
+        return JsonResponse({'purchase': purchase_serializer.data}, safe=False)
     
     elif request.method == 'POST':
         purchase_data = JSONParser().parse(request)
@@ -387,7 +395,7 @@ def purchaseApi(request, id_purchase=0):
         if purchase_serializer.is_valid():
             purchase_serializer.save()
             return JsonResponse({'mess': 'Added Successfully'}, safe=False)
-        return JsonResponse("Failed to Add", safe=False, status=400)
+        return JsonResponse(purchase_serializer.errors, safe=False, status=400)
     
     elif request.method == 'PUT':
         purchase_data = JSONParser().parse(request)
@@ -397,9 +405,7 @@ def purchaseApi(request, id_purchase=0):
             if purchase_serializer.is_valid():
                 purchase_serializer.save()
                 return JsonResponse({'mess': 'Updated Successfully'}, safe=False)
-            else:
-                # Return detailed error messages
-                return JsonResponse(purchase_serializer.errors, safe=False, status=400)
+            return JsonResponse(purchase_serializer.errors, safe=False, status=400)
         except Purchase.DoesNotExist:
             return JsonResponse({'mess': 'Record not found'}, status=404)
     
@@ -410,6 +416,7 @@ def purchaseApi(request, id_purchase=0):
             return JsonResponse({'mess': 'Deleted Successfully'}, safe=False)
         except Purchase.DoesNotExist:
             return JsonResponse({'mess': 'Record not found'}, status=404)
+
 
 @csrf_exempt
 def likeApi(request, id_like=0):
