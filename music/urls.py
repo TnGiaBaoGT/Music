@@ -46,7 +46,7 @@ urlpatterns = [
     path('albums/<int:id_album>', views.albumApi),
 
     path('purchases/', views.purchaseApi),
-    path('purchase/<int:id_purchase>', views.purchaseApi),
+    path('purchases/<int:id_purchase>', views.purchaseApi),
 
     path('likes/', views.likeApi),
     path('likes/<int:id_like>', views.likeApi),
