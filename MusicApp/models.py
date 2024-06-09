@@ -148,6 +148,9 @@ class MusicBundle(models.Model):
     
     def __str__(self):
         return f"Bundle {self.name_bundle} | Price: {self.price_bundle}"
+    def formatted_price(self):
+        return "{:,.0f} VND".format(self.price_bundle)
+    formatted_price.short_description = 'Price (VND)'
 
 class BundlePurchase(models.Model):
     id_bundle_purchase = models.AutoField(primary_key=True)
