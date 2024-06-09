@@ -10,6 +10,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.request import Request
 import json
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils import timezone
 
 @csrf_exempt
 def musicApi(request, id_music=0):
@@ -552,3 +553,28 @@ def bundlepurchaseApi(request, id_bundlepurchase=0, id_user=0):
             return JsonResponse({'mess': 'Deleted Successfully'}, safe=False)
         except BundlePurchase.DoesNotExist:
             return JsonResponse({'mess': 'Record not found'}, status=404)
+
+@csrf_exempt
+def confirm_purchase(request, id_purchase):
+    if request.method == 'POST':
+        # Retrieve the pending purchase object
+        pending_purchase = get_object_or_404(Purchase, pk=id_purchase)
+        
+        # Create the BundlePurchase instance
+        bundle_purchase = BundlePurchase.objects.create(
+            user=pending_purchase.user,
+            bundle=pending_purchase.bundle,
+            purchase_date=timezone.now()
+        )
+        
+        # Delete the pending purchase instance
+        pending_purchase.delete()
+        
+        # Serialize the bundle purchase object
+        serializer = BundlePurchaseSerializer(bundle_purchase)
+        
+        # Return a success response with the serialized data
+        return JsonResponse(serializer.data)
+    else:
+        # Handle other HTTP methods (GET, PUT, DELETE) if necessary
+        return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
