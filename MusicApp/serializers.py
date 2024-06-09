@@ -39,11 +39,6 @@ class AlbumSerializer(serializers.ModelSerializer):
     def get_music_info(self, obj):
         return obj.music_info
 
-class PurchaseSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Purchase
-        fields = '__all__'
-
 
 class LikeSerializer(serializers.ModelSerializer):
     music_info = serializers.SerializerMethodField() 
@@ -79,3 +74,9 @@ class BundlePurchaseSerializer(serializers.ModelSerializer):
         expiration_date = obj.purchase_date + timedelta(days=obj.bundle.access_duration_days)
         remaining_time = expiration_date - timezone.now()
         return max(remaining_time.days, 0)  # Return 0 if the access has expired
+
+class PurchaseSerializer(serializers.ModelSerializer):
+    bundle_info = MusicBundleSerializer(source='bundle', read_only=True)
+    class Meta:
+        model = Purchase
+        fields = '__all__'
