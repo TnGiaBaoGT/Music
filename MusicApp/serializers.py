@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from MusicApp.models import Music, User, Singer, Vote, Transaction, Album, Purchase, Like, MusicBundle, BundlePurchase
+from datetime import timedelta
+from django.utils import timezone
 
 class MusicSerializer(serializers.ModelSerializer):
     class Meta:
@@ -63,6 +65,12 @@ class MusicBundleSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class BundlePurchaseSerializer(serializers.ModelSerializer):
+    days_left = serializers.SerializerMethodField()
     class Meta:
         model = BundlePurchase
         fields = '__all__'
+        
+    def get_days_left(self, obj):
+        expiration_date = obj.purchase_date + timedelta(days=obj.bundle.access_duration_days)
+        remaining_time = expiration_date - timezone.now()
+        return max(remaining_time.days, 0)  # Return 0 if the access has expired
