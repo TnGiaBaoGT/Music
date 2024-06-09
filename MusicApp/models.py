@@ -171,7 +171,7 @@ class Purchase(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f"Purchase {self.id_purchase} | User: {self.user.username} | Bundle: {self.bundle.name_bundle}"
+        return f"Purchase {self.id_purchase} | User: {self.user.name_user} | Bundle: {self.bundle.name_bundle}"
 
     
 
