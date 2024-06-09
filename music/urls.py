@@ -60,6 +60,8 @@ urlpatterns = [
     path('bundlepurchase/', views.bundlepurchaseApi),
     path('bundlepurchase/<int:id_bundlepurchase>/', views.bundlepurchaseApi),
     path('bundlepurchase/user/<int:id_user>/', views.bundlepurchaseApi),
+
+    path('confirm-purchase/<int:id_purchase>/', views.confirm_purchase),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
