@@ -166,12 +166,14 @@ class BundlePurchase(models.Model):
 
 class Purchase(models.Model):
     id_purchase = models.AutoField(primary_key=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True,blank=True)
-    bundle = models.ForeignKey(MusicBundle, on_delete=models.CASCADE , null=True,blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    bundle = models.ForeignKey(MusicBundle, on_delete=models.CASCADE, null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f"Purchase {self.id_purchase} | User: {self.user.name_user} | Bundle: {self.bundle.name_bundle}"
+        user_name = self.user.name_user if self.user else "Unknown User"
+        bundle_name = self.bundle.name_bundle if self.bundle else "Unknown Bundle"
+        return f"Purchase {self.id_purchase} | User: {user_name} | Bundle: {bundle_name}"
 
     
 
