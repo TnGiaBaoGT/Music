@@ -60,12 +60,17 @@ class LikeSerializer(serializers.ModelSerializer):
         }
 
 class MusicBundleSerializer(serializers.ModelSerializer):
+    formatted_price = serializers.SerializerMethodField()
     class Meta:
         model = MusicBundle
         fields = '__all__'
+        
+    def get_formatted_price(self, obj):
+        return "{:,.0f} VND".format(obj.price_bundle)
 
 class BundlePurchaseSerializer(serializers.ModelSerializer):
     days_left = serializers.SerializerMethodField()
+    bundle = MusicBundleSerializer()
     class Meta:
         model = BundlePurchase
         fields = '__all__'
