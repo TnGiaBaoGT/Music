@@ -47,6 +47,7 @@ urlpatterns = [
 
     path('purchases/', views.purchaseApi),
     path('purchases/<int:id_purchase>', views.purchaseApi),
+    path('purchases/user/<int:id_user>', views.purchaseApi),
 
     path('likes/', views.likeApi),
     path('likes/<int:id_like>', views.likeApi),
