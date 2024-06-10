@@ -391,6 +391,15 @@ def purchaseApi(request, id_purchase=0, id_user=0):
     
     elif request.method == 'POST':
         purchase_data = JSONParser().parse(request)
+        user_id = purchase_data.get('user')
+        bundle_id = purchase_data.get('bundle')
+        
+        # Check for duplicate
+        if user_id and bundle_id:
+            duplicate_purchase = Purchase.objects.filter(user_id=user_id, bundle_id=bundle_id).exists()
+            if duplicate_purchase:
+                return JsonResponse({'mess': 'Duplicate purchase not allowed'}, safe=False, status=400)
+        
         purchase_serializer = PurchaseSerializer(data=purchase_data)
         if purchase_serializer.is_valid():
             purchase_serializer.save()
