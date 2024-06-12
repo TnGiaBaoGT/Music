@@ -52,6 +52,7 @@ urlpatterns = [
 
     path('likes/', views.likeApi),
     path('likes/<int:id_like>', views.likeApi),
+    path('likes/user/<int:id_user>', views.likeApi),
 
     path('music/<int:music_id>/like/', views.like_music),
     path('music/<int:music_id>/unlike/', views.unlike_music),
