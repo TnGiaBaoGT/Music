@@ -434,19 +434,27 @@ def purchaseApi(request, id_purchase=0, id_user=0):
 
 
 @csrf_exempt
-def likeApi(request, id_like=0):
+def likeApi(request, id_like=0, id_user=0):
     if request.method == 'GET':
-        if id_like == 0:
-            like = Like.objects.all().order_by('timestamp')
-            like_serializer = LikeSerializer(like, many=True)
-        else:
+        if id_user > 0:
+            try:
+                like = Like.objects.filter(user=id_user).order_by('timestamp')
+                like_serializer = LikeSerializer(like, many=True)
+                return JsonResponse({'like': like_serializer.data}, safe=False)
+            except ObjectDoesNotExist:
+                return JsonResponse({'mess': 'Record not found'}, status=404)
+        
+        if id_like > 0:
             try:
                 like = Like.objects.get(id_like=id_like)
                 like_serializer = LikeSerializer(like)
+                return JsonResponse({'like': like_serializer.data}, safe=False)
             except Like.DoesNotExist:
                 return JsonResponse({'mess': 'Record not found'}, status=404)
-        return JsonResponse({'like':like_serializer.data}, safe=False)
         
+        like = Like.objects.all().order_by('timestamp')
+        like_serializer = LikeSerializer(like, many=True)
+        return JsonResponse({'like': like_serializer.data}, safe=False)
     
     elif request.method == 'POST':
         like_data = JSONParser().parse(request)
@@ -454,7 +462,7 @@ def likeApi(request, id_like=0):
         if like_serializer.is_valid():
             like_serializer.save()
             return JsonResponse({'mess': 'Added Successfully'}, safe=False)
-        return JsonResponse("Failed to Add", safe=False, status=400)
+        return JsonResponse(like_serializer.errors, safe=False, status=400)
     
     elif request.method == 'PUT':
         like_data = JSONParser().parse(request)
@@ -464,9 +472,7 @@ def likeApi(request, id_like=0):
             if like_serializer.is_valid():
                 like_serializer.save()
                 return JsonResponse({'mess': 'Updated Successfully'}, safe=False)
-            else:
-                # Return detailed error messages
-                return JsonResponse(like_serializer.errors, safe=False, status=400)
+            return JsonResponse(like_serializer.errors, safe=False, status=400)
         except Like.DoesNotExist:
             return JsonResponse({'mess': 'Record not found'}, status=404)
     
