@@ -321,19 +321,27 @@ def transactionApi(request, id_transaction=0):
 
 
 @csrf_exempt
-def albumApi(request, id_album=0):
+def albumApi(request, id_album=0, id_user=0):
     if request.method == 'GET':
-        if id_album == 0:
-            album = Album.objects.all().order_by('id_album')
-            album_serializer = AlbumSerializer(album, many=True)
-        else:
+        if id_user > 0:
+            try:
+                album = Album.objects.filter(user_id_album=id_user).order_by('id_album')
+                album_serializer = AlbumSerializer(album, many=True)
+                return JsonResponse({'album': album_serializer.data}, safe=False)
+            except ObjectDoesNotExist:
+                return JsonResponse({'mess': 'Record not found'}, status=404)
+        
+        if id_album > 0:
             try:
                 album = Album.objects.get(id_album=id_album)
                 album_serializer = AlbumSerializer(album)
+                return JsonResponse({'album': album_serializer.data}, safe=False)
             except Album.DoesNotExist:
                 return JsonResponse({'mess': 'Record not found'}, status=404)
-        return JsonResponse({'album':album_serializer.data}, safe=False)
         
+        album = Album.objects.all().order_by('id_album')
+        album_serializer = AlbumSerializer(album, many=True)
+        return JsonResponse({'album': album_serializer.data}, safe=False)
     
     elif request.method == 'POST':
         album_data = JSONParser().parse(request)
@@ -341,7 +349,7 @@ def albumApi(request, id_album=0):
         if album_serializer.is_valid():
             album_serializer.save()
             return JsonResponse({'mess': 'Added Successfully'}, safe=False)
-        return JsonResponse("Failed to Add", safe=False, status=400)
+        return JsonResponse(album_serializer.errors, safe=False, status=400)
     
     elif request.method == 'PUT':
         album_data = JSONParser().parse(request)
@@ -351,9 +359,7 @@ def albumApi(request, id_album=0):
             if album_serializer.is_valid():
                 album_serializer.save()
                 return JsonResponse({'mess': 'Updated Successfully'}, safe=False)
-            else:
-                # Return detailed error messages
-                return JsonResponse(album_serializer.errors, safe=False, status=400)
+            return JsonResponse(album_serializer.errors, safe=False, status=400)
         except Album.DoesNotExist:
             return JsonResponse({'mess': 'Record not found'}, status=404)
     
