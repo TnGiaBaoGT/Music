@@ -161,6 +161,11 @@ class BundlePurchase(models.Model):
     
     def is_access_valid(self):
         return self.purchase_date + timedelta(days=self.bundle.access_duration_days) > timezone.now()
+
+    def get_days_left(self):
+        expiration_date = self.purchase_date + timedelta(days=self.bundle.access_duration_days)
+        remaining_time = expiration_date - timezone.now()
+        return max(remaining_time.days, 0)  # Return 0 if the access has expired
     
     def __str__(self):
         return f"Bundle Purchase {self.id_bundle_purchase} | User: {self.user.name_user} | Bundle: {self.bundle.name_bundle}"
