@@ -12,4 +12,10 @@ admin.site.register(Transaction)
 admin.site.register(Album)
 admin.site.register(Like)
 admin.site.register(MusicBundle)
-admin.site.register(BundlePurchase)
+class BundlePurchaseAdmin(admin.ModelAdmin):
+    list_display = ('id_bundle_purchase', 'user', 'bundle', 'purchase_date', 'days_left')
+
+    def days_left(self, obj):
+        return obj.get_days_left()
+    days_left.short_description = 'Days Left'
+admin.site.register(BundlePurchase, BundlePurchaseAdmin)
