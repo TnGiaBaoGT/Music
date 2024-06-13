@@ -30,6 +30,7 @@ class Music (models.Model):
     release_year_music = models.CharField(max_length=10)
     price_music = models.FloatField(default=0)
     status_music = models.BooleanField(default= False)
+    isFree = models.BooleanField(default= False)
     GENRE_CHOICES = [
         ('POP', 'Pop'),
         ('ROCK', 'Rock'),
