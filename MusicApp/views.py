@@ -589,6 +589,10 @@ def confirm_purchase(request, id_purchase):
             # Retrieve the pending purchase object
             pending_purchase = get_object_or_404(Purchase, pk=id_purchase)
 
+            # Check if the purchase has a momo_token
+            if not pending_purchase.momo_token:
+                return JsonResponse({'error': 'MoMo token not found for this purchase'}, status=400)
+
             # Create the BundlePurchase instance
             bundle_purchase = BundlePurchase.objects.create(
                 user=pending_purchase.user,
