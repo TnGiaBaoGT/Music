@@ -175,6 +175,7 @@ class Purchase(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     bundle = models.ForeignKey(MusicBundle, on_delete=models.CASCADE, null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
+    momo_token = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
         user_name = self.user.name_user if self.user else "Unknown User"
