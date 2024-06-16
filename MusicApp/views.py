@@ -585,24 +585,28 @@ def bundlepurchaseApi(request, id_bundlepurchase=0, id_user=0):
 @csrf_exempt
 def confirm_purchase(request, id_purchase):
     if request.method == 'POST':
-        # Retrieve the pending purchase object
-        pending_purchase = get_object_or_404(Purchase, pk=id_purchase)
-        
-        # Create the BundlePurchase instance
-        bundle_purchase = BundlePurchase.objects.create(
-            user=pending_purchase.user,
-            bundle=pending_purchase.bundle,
-            purchase_date=timezone.now()
-        )
-        
-        # Delete the pending purchase instance
-        pending_purchase.delete()
-        
-        # Serialize the bundle purchase object
-        serializer = BundlePurchaseSerializer(bundle_purchase)
-        
-        # Return a success response with the serialized data
-        return JsonResponse(serializer.data)
+        try:
+            # Retrieve the pending purchase object
+            pending_purchase = get_object_or_404(Purchase, pk=id_purchase)
+
+            # Create the BundlePurchase instance
+            bundle_purchase = BundlePurchase.objects.create(
+                user=pending_purchase.user,
+                bundle=pending_purchase.bundle,
+                purchase_date=timezone.now()
+            )
+
+            # Delete the pending purchase instance
+            pending_purchase.delete()
+
+            # Serialize the bundle purchase object
+            serializer = BundlePurchaseSerializer(bundle_purchase)
+
+            # Return a success response with the serialized data
+            return JsonResponse(serializer.data, status=201)
+        except Exception as e:
+            # Return an error response if something goes wrong
+            return JsonResponse({'error': str(e)}, status=500)
     else:
         # Handle other HTTP methods (GET, PUT, DELETE) if necessary
         return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
