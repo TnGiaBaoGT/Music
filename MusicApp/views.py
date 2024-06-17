@@ -597,6 +597,7 @@ def confirm_purchase(request, id_purchase):
             bundle_purchase = BundlePurchase.objects.create(
                 user=pending_purchase.user,
                 bundle=pending_purchase.bundle,
+                momo_token=pending_purchase.momo_token,
                 purchase_date=timezone.now()
             )
 
