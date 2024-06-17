@@ -614,3 +614,20 @@ def confirm_purchase(request, id_purchase):
     else:
         # Handle other HTTP methods (GET, PUT, DELETE) if necessary
         return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
+
+@csrf_exempt
+def receive_momo_token(request):
+    if request.method == 'POST':
+        id_purchase = request.POST.get('id_purchase')
+        momo_token = request.POST.get('momo_token')
+
+        if not id_purchase or not momo_token:
+            return JsonResponse({'error': 'Missing purchase ID or token'}, status=400)
+
+        purchase = get_object_or_404(Purchase, pk=id_purchase)
+        purchase.momo_token = momo_token
+        purchase.save()
+
+        return JsonResponse({'success': 'Token saved successfully'}, status=200)
+    else:
+        return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
