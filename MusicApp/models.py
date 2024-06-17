@@ -158,6 +158,7 @@ class BundlePurchase(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     bundle = models.ForeignKey(MusicBundle, on_delete=models.CASCADE)
     purchase_date = models.DateTimeField(auto_now_add=True)
+    momo_token = models.CharField(max_length=255, null=True, blank=True)
     
     def is_access_valid(self):
         return self.purchase_date + timedelta(days=self.bundle.access_duration_days) > timezone.now()
