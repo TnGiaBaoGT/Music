@@ -65,6 +65,7 @@ urlpatterns = [
     path('bundlepurchase/user/<int:id_user>/', views.bundlepurchaseApi),
 
     path('confirm-purchase/<int:id_purchase>/', views.confirm_purchase),
+    path('receive_momo_token/', views.receive_momo_token),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
