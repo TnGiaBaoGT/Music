@@ -52,7 +52,7 @@ class Music (models.Model):
 
 class Listen(models.Model):
     music = models.ForeignKey(Music, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE,null=True,blank=True)
     listened_at = models.DateTimeField(default=timezone.now)
 
 
