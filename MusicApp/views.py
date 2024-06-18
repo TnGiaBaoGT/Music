@@ -6,13 +6,14 @@ from MusicApp.models import Music, User, Singer, Vote, Transaction, Album,Purcha
 from MusicApp.serializers import MusicSerializer, UserSerializer, SingerSerializer, VoteSerializer, TransactionSerializer, AlbumSerializer,PurchaseSerializer, LikeSerializer,MusicBundleSerializer,BundlePurchaseSerializer
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
-from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.request import Request
 import json
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 
 @csrf_exempt
+@api_view(['GET', 'POST', 'PUT', 'DELETE'])
+@parser_classes([MultiPartParser, FormParser])
 def musicApi(request, id_music=0, id_user=0):
     drf_request = Request(request, parsers=[MultiPartParser(), FormParser()])
 
@@ -38,7 +39,6 @@ def musicApi(request, id_music=0, id_user=0):
         return JsonResponse({'music': music_serializer.data}, safe=False)
     
     elif request.method == 'POST':
-        music_data = JSONParser().parse(request)
         music_serializer = MusicSerializer(data=drf_request.data)
         if music_serializer.is_valid():
             music_serializer.save()
@@ -46,7 +46,6 @@ def musicApi(request, id_music=0, id_user=0):
         return JsonResponse(music_serializer.errors, safe=False, status=400)
     
     elif request.method == 'PUT':
-        music_data = JSONParser().parse(request)
         try:
             music = Music.objects.get(id_music=id_music)
             music_serializer = MusicSerializer(music, data=drf_request.data, partial=True)  # Use partial update
