@@ -13,7 +13,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 
 @csrf_exempt
-@parser_classes([MultiPartParser, FormParser])
 def musicApi(request, id_music=0, id_user=0):
     drf_request = Request(request, parsers=[MultiPartParser(), FormParser()])
 
@@ -63,6 +62,8 @@ def musicApi(request, id_music=0, id_user=0):
             return JsonResponse({'mess': 'Deleted Successfully'}, safe=False)
         except Music.DoesNotExist:
             return JsonResponse({'mess': 'Record not found'}, status=404)
+    
+    return HttpResponseNotAllowed(['GET', 'POST', 'PUT', 'DELETE'])
         
 @csrf_exempt
 def musicApiHTML(request, id_music=0):
