@@ -12,7 +12,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 
 @csrf_exempt
-@api_view(['GET', 'POST', 'PUT', 'DELETE'])
 @parser_classes([MultiPartParser, FormParser])
 def musicApi(request, id_music=0, id_user=0):
     drf_request = Request(request, parsers=[MultiPartParser(), FormParser()])
