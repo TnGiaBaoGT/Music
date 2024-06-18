@@ -647,18 +647,23 @@ def listen_song(request, id_music):
             song = Music.objects.get(id_music=id_music)
             user = None
 
-            # Assuming the user is sent in the request body, or you can modify as needed
-            if 'user_id' in request.POST:
-                user_id = request.POST['user_id']
-                user = User.objects.get(id_user=user_id)
+            # Assuming the user_id is sent in the request body
+            data = json.loads(request.body)
+            user_id = data.get('user_id')
+
+            if user_id:
+                user = get_object_or_404(User, id_user=user_id)
 
             Listen.objects.create(music=song, user=user)
             song.listen_count += 1
             song.save()
+
             return JsonResponse({"message": "Song listened"}, status=200)
         except Music.DoesNotExist:
             return JsonResponse({"error": "Song not found"}, status=404)
         except User.DoesNotExist:
             return JsonResponse({"error": "User not found"}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
     else:
         return JsonResponse({"error": "Invalid HTTP method"}, status=405)
