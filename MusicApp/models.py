@@ -28,7 +28,6 @@ class Music (models.Model):
     music = models.FileField(upload_to='music_files/',storage=RawMediaCloudinaryStorage())
     name_singer_music = models.CharField(max_length=200)
     release_year_music = models.CharField(max_length=10)
-    price_music = models.FloatField(default=0)
     status_music = models.BooleanField(default= False)
     isFree = models.BooleanField(default= False)
     GENRE_CHOICES = [
