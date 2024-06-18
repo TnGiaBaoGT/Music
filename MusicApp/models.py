@@ -152,7 +152,6 @@ class MusicBundle(models.Model):
     description_bundle = models.TextField()
     price_bundle = models.FloatField(default=0)
     music_tracks = models.ManyToManyField(Music)
-    is_free = models.BooleanField(default=False)  # Indicates if the bundle is free
     access_duration_days = models.IntegerField(default=30)  # Access duration in days
     
     def __str__(self):
