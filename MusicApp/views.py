@@ -648,8 +648,8 @@ def listen_song(request, id_music):
             user = None
 
             # Assuming the user is sent in the request body, or you can modify as needed
-            if 'id_user' in request.POST:
-                user_id = request.POST['id_user']
+            if 'user_id' in request.POST:
+                user_id = request.POST['user_id']
                 user = User.objects.get(id_user=user_id)
 
             Listen.objects.create(music=song, user=user)
