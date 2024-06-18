@@ -6,6 +6,7 @@ from MusicApp.models import Music, User, Singer, Vote, Transaction, Album,Purcha
 from MusicApp.serializers import MusicSerializer, UserSerializer, SingerSerializer, VoteSerializer, TransactionSerializer, AlbumSerializer,PurchaseSerializer, LikeSerializer,MusicBundleSerializer,BundlePurchaseSerializer
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.request import Request
 import json
 from django.core.exceptions import ObjectDoesNotExist
