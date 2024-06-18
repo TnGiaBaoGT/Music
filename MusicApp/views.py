@@ -18,9 +18,14 @@ def musicApi(request, id_music=0):
     drf_request = Request(request, parsers=[MultiPartParser(), FormParser()])
 
     if request.method == 'GET':
+        user_id = request.GET.get('composer', None)
         if id_music == 0:
-            # Retrieve all music items and order them by id_music
-            music = Music.objects.all().order_by('id_music')
+            if user_id:
+                # Retrieve all music items for the given user ID and order them by id_music
+                music = Music.objects.filter(user_id=user_id).order_by('id_music')
+            else:
+                # Retrieve all music items and order them by id_music
+                music = Music.objects.all().order_by('id_music')
             music_serializer = MusicSerializer(music, many=True)
         else:
             try:
