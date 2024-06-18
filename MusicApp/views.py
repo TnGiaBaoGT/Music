@@ -13,16 +13,12 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 
 @csrf_exempt
-def musicApi(request, id_music=0, id_user=None):
+def musicApi(request, id_music=0):
     # Wrap the WSGIRequest with DRF Request to use parsers
     drf_request = Request(request, parsers=[MultiPartParser(), FormParser()])
 
     if request.method == 'GET':
-        if id_user is not None:
-            # Retrieve music items by the specified user and order them by id_music
-            music = Music.objects.filter(composer=id_user).order_by('id_music')
-            music_serializer = MusicSerializer(music, many=True)
-        elif id_music == 0:
+        if id_music == 0:
             # Retrieve all music items and order them by id_music
             music = Music.objects.all().order_by('id_music')
             music_serializer = MusicSerializer(music, many=True)
