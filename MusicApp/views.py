@@ -13,44 +13,51 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 
 @csrf_exempt
-def musicApi(request, id_music=0):
+def musicApi(request, id_music=0, id_user=0):
     # Wrap the WSGIRequest with DRF Request to use parsers
     drf_request = Request(request, parsers=[MultiPartParser(), FormParser()])
 
     if request.method == 'GET':
-        if id_music == 0:
-            # Retrieve all music items and order them by id_music
-            music = Music.objects.all().order_by('id_music')
-            music_serializer = MusicSerializer(music, many=True)
-        else:
+        if id_user > 0:
+            try:
+                music = Music.objects.filter(composer=id_user).order_by('id_music')
+                music_serializer = MusicSerializer(music, many=True)
+                return JsonResponse({'music': music_serializer.data}, safe=False)
+            except ObjectDoesNotExist:
+                return JsonResponse({'mess': 'Record not found'}, status=404)
+        
+        if id_music > 0:
             try:
                 music = Music.objects.get(id_music=id_music)
                 music_serializer = MusicSerializer(music)
+                return JsonResponse({'music': music_serializer.data}, safe=False)
             except Music.DoesNotExist:
                 return JsonResponse({'mess': 'Record not found'}, status=404)
+        
+        music = Music.objects.all().order_by('id_music')
+        music_serializer = MusicSerializer(music, many=True)
         return JsonResponse({'music': music_serializer.data}, safe=False)
-
+    
     elif request.method == 'POST':
+        music_data = JSONParser().parse(request)
         music_serializer = MusicSerializer(data=drf_request.data)
         if music_serializer.is_valid():
             music_serializer.save()
             return JsonResponse({'mess': 'Added Successfully'}, safe=False)
-        else:
-            # Print the errors to debug
-            print(music_serializer.errors)
-            return JsonResponse({'mess': 'Failed to Add', 'errors': music_serializer.errors}, safe=False, status=400)
-
+        return JsonResponse(music_serializer.errors, safe=False, status=400)
+    
     elif request.method == 'PUT':
+        music_data = JSONParser().parse(request)
         try:
             music = Music.objects.get(id_music=id_music)
-            music_serializer = MusicSerializer(music, data=drf_request.data)
+            music_serializer = MusicSerializer(music, data=drf_request.data, partial=True)  # Use partial update
             if music_serializer.is_valid():
                 music_serializer.save()
                 return JsonResponse({'mess': 'Updated Successfully'}, safe=False)
-            return JsonResponse({'mess': 'Failed to Update'}, safe=False, status=400)
+            return JsonResponse(music_serializer.errors, safe=False, status=400)
         except Music.DoesNotExist:
             return JsonResponse({'mess': 'Record not found'}, status=404)
-
+    
     elif request.method == 'DELETE':
         try:
             music = Music.objects.get(id_music=id_music)
