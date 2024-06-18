@@ -2,7 +2,7 @@ from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
-from MusicApp.models import Music, User, Singer, Vote, Transaction, Album,Purchase, Like, MusicBundle,BundlePurchase
+from MusicApp.models import Music, User, Singer, Vote, Transaction, Album,Purchase, Like, MusicBundle,BundlePurchase,Listen
 from MusicApp.serializers import MusicSerializer, UserSerializer, SingerSerializer, VoteSerializer, TransactionSerializer, AlbumSerializer,PurchaseSerializer, LikeSerializer,MusicBundleSerializer,BundlePurchaseSerializer
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
@@ -638,3 +638,19 @@ def receive_momo_token(request):
         return JsonResponse({'success': 'Token saved successfully'}, status=200)
     else:
         return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
+
+
+@csrf_exempt
+def listen_song(request, id_music):
+    if request.method == 'POST':
+        try:
+            song = Music.objects.get(id_music=id_music)
+            # Here we assume no user authentication is required.
+            Listen.objects.create(song=song)
+            song.listen_count += 1
+            song.save()
+            return JsonResponse({"message": "Song listened"}, status=200)
+        except Music.DoesNotExist:
+            return JsonResponse({"error": "Song not found"}, status=404)
+    else:
+        return JsonResponse({"error": "Invalid HTTP method"}, status=405)
