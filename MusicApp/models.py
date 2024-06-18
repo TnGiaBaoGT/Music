@@ -55,6 +55,9 @@ class Listen(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,null=True,blank=True)
     listened_at = models.DateTimeField(default=timezone.now)
 
+    def __str__(self):
+        return f"{self.user} listened to {self.music}"
+
 
 
 class Singer (models.Model):
