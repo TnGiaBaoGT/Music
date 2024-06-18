@@ -29,6 +29,7 @@ urlpatterns = [
     path('musics/', views.musicApi),
     path('music/', views.musicApiHTML, name='index'),
     path('musics/<int:id_music>', views.musicApi),
+    path('musics/composer/<int:id_user>', views.musicApi),
 
     path('users/', views.userApi),
     path('users/<int:id_user>', views.userApi),
