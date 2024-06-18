@@ -644,13 +644,21 @@ def receive_momo_token(request):
 def listen_song(request, id_music):
     if request.method == 'POST':
         try:
-            song = Music.objects.get(id_music=id_music)
-            # Here we assume no user authentication is required.
-            Listen.objects.create(song=song)
+            song = Music.objects.get(id=id_music)
+            user = None
+
+            # Assuming the user is sent in the request body, or you can modify as needed
+            if 'id_user' in request.POST:
+                user_id = request.POST['id_user']
+                user = User.objects.get(id_user=user_id)
+
+            Listen.objects.create(music=song, user=user)
             song.listen_count += 1
             song.save()
             return JsonResponse({"message": "Song listened"}, status=200)
         except Music.DoesNotExist:
             return JsonResponse({"error": "Song not found"}, status=404)
+        except User.DoesNotExist:
+            return JsonResponse({"error": "User not found"}, status=404)
     else:
         return JsonResponse({"error": "Invalid HTTP method"}, status=405)
