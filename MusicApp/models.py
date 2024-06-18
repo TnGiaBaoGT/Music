@@ -45,9 +45,15 @@ class Music (models.Model):
     image_music = models.ImageField(upload_to='music_images/', null=True, blank=True, storage=RawMediaCloudinaryStorage())
     num_vote = models.PositiveIntegerField(default=0)
     composer = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, limit_choices_to={'name_role': 'COMPOSER'}, related_name='music_composed')
+    listen_count = models.IntegerField(default=0)
     
     def __str__(self):
         return self.name_music
+
+class Listen(models.Model):
+    music = models.ForeignKey(Music, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    listened_at = models.DateTimeField(default=timezone.now)
 
 
 
