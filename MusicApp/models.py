@@ -100,17 +100,15 @@ class Vote (models.Model):
         return self.user_id_vote.name_user if self.user_id_vote else 'Anonymous'
 
 
-class Album (models.Model):
+class Album(models.Model):
     id_album = models.AutoField(primary_key=True)
     name_album = models.CharField(max_length=50)
-    
-    
+    music_id_album = models.ManyToManyField(Music, blank=True)
+    user_id_album = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+
     def __str__(self):
         return self.name_album
 
-    music_id_album = models.ManyToManyField(Music, blank=True)
-    user_id_album = models.ForeignKey(User, on_delete=models.CASCADE, null= True)
-    
     @property
     def music_info(self):
         return [
@@ -119,6 +117,11 @@ class Album (models.Model):
                 'music': music.music.url if music.music else None,
                 'name_singer_music': music.name_singer_music,
                 'image_music': music.image_music.url if music.image_music else None,
+                'genre_music': music.genre_music,
+                'listen_count': music.listen_count,
+                'num_vote': music.num_vote,
+                'isFree': music.isFree,
+                'status_music': music.status_music,
             }
             for music in self.music_id_album.all()
         ]
