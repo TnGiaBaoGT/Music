@@ -206,5 +206,15 @@ class MusicCart(models.Model):
         music_name = self.music.name_music if self.music else "Unknown Music Name"
         return f"User: {user_name} purchase {music_name}"
 
+class MusicPurchased(models.Model):
+    id_music_purchased = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE,null=True,blank=True)
+    music = models.ForeignKey(Music, on_delete=models.CASCADE,null=True,blank=True)
+    purchase_date = models.DateTimeField(auto_now_add=True)
+    momo_token = models.CharField(max_length=255, null=True, blank=True)
+
+    def __str__(self):
+        return f"Music Purchase {self.id_music_purchased} | User: {self.user.name_user} | Music: {self.music.name_music}"
+
     
 
