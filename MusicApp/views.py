@@ -673,11 +673,11 @@ def listen_song(request, id_music):
 def musiccartApi(request, id_cart=0, id_user=0):
     if request.method == 'GET':
         if id_user > 0:
-            try:
-                musiccart = MusicCart.objects.filter(user_id=id_user).order_by('id_cart')
+            musiccart = MusicCart.objects.filter(user_id=id_user).order_by('id_cart')
+            if musiccart.exists():
                 musiccart_serializer = MusicCartSerializer(musiccart, many=True)
                 return JsonResponse({'musiccart': musiccart_serializer.data}, safe=False)
-            except ObjectDoesNotExist:
+            else:
                 return JsonResponse({'mess': 'Record not found'}, status=404)
         
         if id_cart > 0:
@@ -695,13 +695,15 @@ def musiccartApi(request, id_cart=0, id_user=0):
     elif request.method == 'POST':
         musiccart_data = JSONParser().parse(request)
         user_id = musiccart_data.get('user')
-        
+        music_id = musiccart_data.get('music')
+
+        if not user_id or not music_id:
+            return JsonResponse({'mess': 'User ID and Music ID are required'}, safe=False, status=400)
+
         # Check for duplicate active cart for the user
-        if user_id:
-            duplicate_musiccart = MusicCart.objects.filter(user_id=user_id).exists()
-            if duplicate_musiccart:
-                return JsonResponse({'mess': 'Duplicate active musiccart not allowed'}, safe=False, status=400)
-        
+        if MusicCart.objects.filter(user_id=user_id, music_id=music_id).exists():
+            return JsonResponse({'mess': 'Duplicate music entry not allowed in user\'s cart'}, safe=False, status=400)
+
         musiccart_serializer = MusicCartSerializer(data=musiccart_data)
         if musiccart_serializer.is_valid():
             musiccart_serializer.save()
@@ -727,7 +729,6 @@ def musiccartApi(request, id_cart=0, id_user=0):
             return JsonResponse({'mess': 'Deleted Successfully'}, safe=False)
         except MusicCart.DoesNotExist:
             return JsonResponse({'mess': 'Record not found'}, status=404)
-
 
 @csrf_exempt
 def musicpurchasedApi(request, id_music_purchased=0, id_user=0):
