@@ -698,7 +698,7 @@ def musiccartApi(request, id_cart=0, id_user=0):
         
         # Check for duplicate active cart for the user
         if user_id:
-            duplicate_musiccart = MusicCart.objects.filter(user_id=user_id, is_active=True).exists()
+            duplicate_musiccart = MusicCart.objects.filter(user_id=user_id).exists()
             if duplicate_musiccart:
                 return JsonResponse({'mess': 'Duplicate active musiccart not allowed'}, safe=False, status=400)
         
