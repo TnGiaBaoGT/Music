@@ -2,8 +2,8 @@ from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
-from MusicApp.models import Music, User, Singer, Vote, Transaction, Album,Purchase, Like, MusicBundle,BundlePurchase,Listen
-from MusicApp.serializers import MusicSerializer, UserSerializer, SingerSerializer, VoteSerializer, TransactionSerializer, AlbumSerializer,PurchaseSerializer, LikeSerializer,MusicBundleSerializer,BundlePurchaseSerializer
+from MusicApp.models import Music, User, Singer, Vote, Transaction, Album,Purchase, Like, MusicBundle,BundlePurchase,Listen,MusicCart,MusicPurchased
+from MusicApp.serializers import MusicSerializer, UserSerializer, SingerSerializer, VoteSerializer, TransactionSerializer, AlbumSerializer,PurchaseSerializer, LikeSerializer,MusicBundleSerializer,BundlePurchaseSerializer,MusicCartSerializer,MusicPurchasedSerializer
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -667,3 +667,176 @@ def listen_song(request, id_music):
             return JsonResponse({"error": str(e)}, status=400)
     else:
         return JsonResponse({"error": "Invalid HTTP method"}, status=405)
+
+
+@csrf_exempt
+def musiccartApi(request, id_cart=0, id_user=0):
+    if request.method == 'GET':
+        if id_user > 0:
+            try:
+                musiccart = MusicCart.objects.filter(user_id=id_user).order_by('id_cart')
+                musiccart_serializer = MusicCartSerializer(musiccart, many=True)
+                return JsonResponse({'musiccart': musiccart_serializer.data}, safe=False)
+            except ObjectDoesNotExist:
+                return JsonResponse({'mess': 'Record not found'}, status=404)
+        
+        if id_cart > 0:
+            try:
+                musiccart = MusicCart.objects.get(id_cart=id_cart)
+                musiccart_serializer = MusicCartSerializer(musiccart)
+                return JsonResponse({'musiccart': musiccart_serializer.data}, safe=False)
+            except MusicCart.DoesNotExist:
+                return JsonResponse({'mess': 'Record not found'}, status=404)
+        
+        musiccart = MusicCart.objects.all().order_by('id_cart')
+        musiccart_serializer = MusicCartSerializer(musiccart, many=True)
+        return JsonResponse({'musiccart': musiccart_serializer.data}, safe=False)
+    
+    elif request.method == 'POST':
+        musiccart_data = JSONParser().parse(request)
+        user_id = musiccart_data.get('user')
+        
+        # Check for duplicate active cart for the user
+        if user_id:
+            duplicate_musiccart = MusicCart.objects.filter(user_id=user_id, is_active=True).exists()
+            if duplicate_musiccart:
+                return JsonResponse({'mess': 'Duplicate active musiccart not allowed'}, safe=False, status=400)
+        
+        musiccart_serializer = MusicCartSerializer(data=musiccart_data)
+        if musiccart_serializer.is_valid():
+            musiccart_serializer.save()
+            return JsonResponse({'mess': 'Added Successfully'}, safe=False)
+        return JsonResponse(musiccart_serializer.errors, safe=False, status=400)
+    
+    elif request.method == 'PUT':
+        musiccart_data = JSONParser().parse(request)
+        try:
+            musiccart = MusicCart.objects.get(id_cart=id_cart)
+            musiccart_serializer = MusicCartSerializer(musiccart, data=musiccart_data, partial=True)  # Use partial update
+            if musiccart_serializer.is_valid():
+                musiccart_serializer.save()
+                return JsonResponse({'mess': 'Updated Successfully'}, safe=False)
+            return JsonResponse(musiccart_serializer.errors, safe=False, status=400)
+        except MusicCart.DoesNotExist:
+            return JsonResponse({'mess': 'Record not found'}, status=404)
+    
+    elif request.method == 'DELETE':
+        try:
+            musiccart = MusicCart.objects.get(id_cart=id_cart)
+            musiccart.delete()
+            return JsonResponse({'mess': 'Deleted Successfully'}, safe=False)
+        except MusicCart.DoesNotExist:
+            return JsonResponse({'mess': 'Record not found'}, status=404)
+
+
+@csrf_exempt
+def musicpurchasedApi(request, id_music_purchased=0, id_user=0):
+    if request.method == 'GET':
+        if id_user > 0:
+            try:
+                musicpurchased = MusicPurchased.objects.filter(user_id=id_user).order_by('id_music_purchased')
+                musicpurchased_serializer = MusicPurchasedSerializer(musicpurchased, many=True)
+                return JsonResponse({'musicpurchased': musicpurchased_serializer.data}, safe=False)
+            except ObjectDoesNotExist:
+                return JsonResponse({'mess': 'Record not found'}, status=404)
+        
+        if id_music_purchased > 0:
+            try:
+                musicpurchased = MusicPurchased.objects.get(id_music_purchased=id_music_purchased)
+                musicpurchased_serializer = MusicPurchasedSerializer(musicpurchased)
+                return JsonResponse({'musicpurchased': musicpurchased_serializer.data}, safe=False)
+            except MusicPurchased.DoesNotExist:
+                return JsonResponse({'mess': 'Record not found'}, status=404)
+        
+        musicpurchased = MusicPurchased.objects.all().order_by('id_music_purchased')
+        musicpurchased_serializer = MusicPurchasedSerializer(musicpurchased, many=True)
+        return JsonResponse({'musicpurchased': musicpurchased_serializer.data}, safe=False)
+    
+    elif request.method == 'POST':
+        musicpurchased_data = JSONParser().parse(request)
+        user_id = musicpurchased_data.get('user')
+        
+        # Check for duplicate active cart for the user
+        if user_id:
+            duplicate_musicpurchased = MusicPurchased.objects.filter(user_id=user_id, is_active=True).exists()
+            if duplicate_musicpurchased:
+                return JsonResponse({'mess': 'Duplicate active musicpurchased not allowed'}, safe=False, status=400)
+        
+        musicpurchased_serializer = MusicPurchasedSerializer(data=musicpurchased_data)
+        if musicpurchased_serializer.is_valid():
+            musicpurchased_serializer.save()
+            return JsonResponse({'mess': 'Added Successfully'}, safe=False)
+        return JsonResponse(musicpurchased_serializer.errors, safe=False, status=400)
+    
+    elif request.method == 'PUT':
+        musicpurchased_data = JSONParser().parse(request)
+        try:
+            musicpurchased = MusicPurchased.objects.get(id_music_purchased=id_music_purchased)
+            musicpurchased_serializer = MusicPurchasedSerializer(musicpurchased, data=musicpurchased_data, partial=True)  # Use partial update
+            if musicpurchased_serializer.is_valid():
+                musicpurchased_serializer.save()
+                return JsonResponse({'mess': 'Updated Successfully'}, safe=False)
+            return JsonResponse(musicpurchased_serializer.errors, safe=False, status=400)
+        except MusicPurchased.DoesNotExist:
+            return JsonResponse({'mess': 'Record not found'}, status=404)
+    
+    elif request.method == 'DELETE':
+        try:
+            musicpurchased = MusicPurchased.objects.get(id_music_purchased=id_music_purchased)
+            musicpurchased.delete()
+            return JsonResponse({'mess': 'Deleted Successfully'}, safe=False)
+        except MusicPurchased.DoesNotExist:
+            return JsonResponse({'mess': 'Record not found'}, status=404)
+
+
+@csrf_exempt
+def confirm_music_purchase(request, id_cart):
+    if request.method == 'POST':
+        try:
+            # Retrieve the music cart object
+            music_cart = get_object_or_404(MusicCart, pk=id_cart)
+
+            # Check if the cart has a momo_token
+            if not music_cart.momo_token:
+                return JsonResponse({'error': 'MoMo token not found for this cart'}, status=400)
+
+            # Create the BundlePurchase instance
+            music_purchased = MusicPurchased.objects.create(
+                user=music_cart.user,
+                music=music_cart.music,  # Assuming bundle is equivalent to music here
+                momo_token=music_cart.momo_token,
+                purchase_date=timezone.now()
+            )
+
+            # Delete the music cart instance
+            music_cart.delete()
+
+            # Serialize the bundle purchase object
+            serializer = BundlePurchaseSerializer(music_purchased)
+
+            # Return a success response with the serialized data
+            return JsonResponse(serializer.data, status=201)
+        except Exception as e:
+            # Return an error response if something goes wrong
+            return JsonResponse({'error': str(e)}, status=500)
+    else:
+        # Handle other HTTP methods (GET, PUT, DELETE) if necessary
+        return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
+
+
+@csrf_exempt
+def receive_momo_token_music(request):
+    if request.method == 'POST':
+        id_cart = request.POST.get('id_cart')
+        momo_token = request.POST.get('momo_token')
+
+        if not id_cart or not momo_token:
+            return JsonResponse({'error': 'Missing cart ID or token'}, status=400)
+
+        music_cart = get_object_or_404(MusicCart, pk=id_cart)
+        music_cart.momo_token = momo_token
+        music_cart.save()
+
+        return JsonResponse({'success': 'Token saved successfully'}, status=200)
+    else:
+        return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
