@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from MusicApp.models import Music, User, Singer, Vote, Transaction, Album, Purchase, Like, MusicBundle, BundlePurchase
+from MusicApp.models import Music, User, Singer, Vote, Transaction, Album, Purchase, Like, MusicBundle, BundlePurchase,MusicCart,MusicPurchased
 from datetime import timedelta
 from django.utils import timezone
 
@@ -79,4 +79,18 @@ class PurchaseSerializer(serializers.ModelSerializer):
     bundle_info = MusicBundleSerializer(source='bundle', read_only=True)
     class Meta:
         model = Purchase
+        fields = '__all__'
+
+
+class MusicCartSerializer(serializers.ModelSerializer):
+    music_info = MusicSerializer(source='music',read_only=True)
+    class Meta:
+        model = MusicCart
+        fields = '__all__'
+
+
+class MusicPurchasedSerializer(serializers.ModelSerializer):
+    music = MusicSerializer()
+    class Meta:
+        model = MusicPurchased
         fields = '__all__'
