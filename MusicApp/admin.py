@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Music, User, Purchase, Singer, Vote, Transaction, Album, Like, MusicBundle,BundlePurchase,Listen
+from .models import Music, User, Purchase, Singer, Vote, Transaction, Album, Like, MusicBundle,BundlePurchase,Listen,MusicCart,MusicPurchased
 
 admin.site.register(Music)
 admin.site.register(User)
@@ -20,3 +20,5 @@ class BundlePurchaseAdmin(admin.ModelAdmin):
     days_left.short_description = 'Days Left'
 admin.site.register(BundlePurchase, BundlePurchaseAdmin)
 admin.site.register(Listen)
+admin.site.register(MusicCart)
+admin.site.register(MusicPurchased)
