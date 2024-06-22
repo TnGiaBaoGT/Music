@@ -702,7 +702,7 @@ def musiccartApi(request, id_cart=0, id_user=0):
 
         # Check for duplicate active cart for the user
         if MusicCart.objects.filter(user_id=user_id, music_id=music_id).exists():
-            return JsonResponse({'Duplicate music entry not allowed in user\'s cart'}, safe=False, status=400)
+            return JsonResponse({'mess': 'Duplicate music entry not allowed in user\'s cart'}, safe=False, status=400)
 
         musiccart_serializer = MusicCartSerializer(data=musiccart_data)
         if musiccart_serializer.is_valid():
