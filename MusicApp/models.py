@@ -194,5 +194,17 @@ class Purchase(models.Model):
         bundle_name = self.bundle.name_bundle if self.bundle else "Unknown Bundle"
         return f"Purchase {self.id_purchase} | User: {user_name} | Bundle: {bundle_name}"
 
+class MusicCart(models.Model):
+    id_cart = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE,null=True,blank=True)
+    music = models.ForeignKey(Music, on_delete=models.CASCADE,null=True,blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    momo_token = models.CharField(max_length=255,null=True,blank=True)
+    
+    def __str__(self):
+        user_name = self.user.name_user if self.user else "Unknown User"
+        music_name = self.music.name_music if self.music else "Unknown Music Name"
+        return f"User: {user_name} purchase {music_name}"
+
     
 
