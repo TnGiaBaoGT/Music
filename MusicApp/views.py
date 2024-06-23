@@ -810,7 +810,7 @@ def confirm_music_purchase(request, id_user):
 
             # Create the MusicPurchased instance
             music_purchased = MusicPurchased.objects.create(
-                id_user=id_user,
+                user=id_user,
                 momo_token=momo_token,
                 purchase_date=timezone.now()
             )
