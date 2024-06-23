@@ -2,7 +2,7 @@ from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
-from MusicApp.models import Music, User, Singer, Vote, Transaction, Album,Purchase, Like, MusicBundle,BundlePurchase,Listen,MusicCart,MusicPurchased
+from MusicApp.models import Music, User, Singer, Vote, Transaction, Album,Purchase, Like, MusicBundle,BundlePurchase,Listen,MusicCart,MusicPurchased,MusicPurchasedItem
 from MusicApp.serializers import MusicSerializer, UserSerializer, SingerSerializer, VoteSerializer, TransactionSerializer, AlbumSerializer,PurchaseSerializer, LikeSerializer,MusicBundleSerializer,BundlePurchaseSerializer,MusicCartSerializer,MusicPurchasedSerializer
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
@@ -791,29 +791,40 @@ def musicpurchasedApi(request, id_music_purchased=0, id_user=0):
 
 
 @csrf_exempt
-def confirm_music_purchase(request, id_cart):
+def confirm_music_purchase(request):
     if request.method == 'POST':
         try:
-            # Retrieve the music cart object
-            music_cart = get_object_or_404(MusicCart, pk=id_cart)
+            user_id = request.POST.get('user_id')  # Assuming you pass the user ID in the POST request
+            momo_token = request.POST.get('momo_token')  # Assuming you pass the momo_token in the POST request
 
-            # Check if the cart has a momo_token
-            if not music_cart.momo_token:
-                return JsonResponse({'error': 'MoMo token not found for this cart'}, status=400)
+            if not momo_token:
+                return JsonResponse({'error': 'MoMo token is required'}, status=400)
 
-            # Create the BundlePurchase instance
+            # Retrieve all cart items for the user
+            cart_items = MusicCart.objects.filter(user_id=user_id)
+
+            if not cart_items.exists():
+                return JsonResponse({'error': 'No items in the cart'}, status=400)
+
+            # Create the MusicPurchased instance
             music_purchased = MusicPurchased.objects.create(
-                user=music_cart.user,
-                music=music_cart.music,  # Assuming bundle is equivalent to music here
-                momo_token=music_cart.momo_token,
+                user_id=user_id,
+                momo_token=momo_token,
                 purchase_date=timezone.now()
             )
 
-            # Delete the music cart instance
-            music_cart.delete()
+            # Add each music item from the cart to the purchased music
+            for item in cart_items:
+                MusicPurchasedItem.objects.create(
+                    music_purchased=music_purchased,
+                    music=item.music
+                )
 
-            # Serialize the bundle purchase object
-            serializer = BundlePurchaseSerializer(music_purchased)
+            # Delete all cart items for the user
+            cart_items.delete()
+
+            # Serialize the music purchase object
+            serializer = MusicPurchasedSerializer(music_purchased)
 
             # Return a success response with the serialized data
             return JsonResponse(serializer.data, status=201)
@@ -821,9 +832,7 @@ def confirm_music_purchase(request, id_cart):
             # Return an error response if something goes wrong
             return JsonResponse({'error': str(e)}, status=500)
     else:
-        # Handle other HTTP methods (GET, PUT, DELETE) if necessary
         return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
-
 
 @csrf_exempt
 def receive_momo_token_music(request):
