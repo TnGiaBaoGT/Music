@@ -849,7 +849,7 @@ def receive_momo_token_music(request):
             return JsonResponse({'error': 'Missing user ID or token'}, status=400)
 
         # Retrieve all cart items for the user
-        cart_items = MusicCart.objects.filter(id_user=id_user)
+        cart_items = MusicCart.objects.filter(user=id_user)
 
         if not cart_items.exists():
             return JsonResponse({'error': 'No items in the cart for the user'}, status=400)
