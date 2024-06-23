@@ -794,10 +794,10 @@ def musicpurchasedApi(request, id_music_purchased=0, id_user=0):
 def confirm_music_purchase(request):
     if request.method == 'POST':
         try:
-            user_id = request.POST.get('user_id')  # Assuming you pass the user ID in the POST request
+            id_user = request.POST.get('id_user')  # Assuming you pass the user ID in the POST request
 
             # Retrieve all cart items for the user
-            cart_items = MusicCart.objects.filter(user_id=user_id)
+            cart_items = MusicCart.objects.filter(id_user=id_user)
 
             if not cart_items.exists():
                 return JsonResponse({'error': 'No items in the cart'}, status=400)
@@ -811,7 +811,7 @@ def confirm_music_purchase(request):
 
             # Create the MusicPurchased instance
             music_purchased = MusicPurchased.objects.create(
-                user_id=user_id,
+                id_user=id_user,
                 momo_token=momo_token,
                 purchase_date=timezone.now()
             )
@@ -837,17 +837,19 @@ def confirm_music_purchase(request):
     else:
         return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
 
+
+
 @csrf_exempt
 def receive_momo_token_music(request):
     if request.method == 'POST':
-        user_id = request.POST.get('user_id')  # Assuming you pass the user ID in the POST request
+        id_user = request.POST.get('id_user')  # Assuming you pass the user ID in the POST request
         momo_token = request.POST.get('momo_token')
 
-        if not user_id or not momo_token:
+        if not id_user or not momo_token:
             return JsonResponse({'error': 'Missing user ID or token'}, status=400)
 
         # Retrieve all cart items for the user
-        cart_items = MusicCart.objects.filter(user_id=user_id)
+        cart_items = MusicCart.objects.filter(id_user=id_user)
 
         if not cart_items.exists():
             return JsonResponse({'error': 'No items in the cart for the user'}, status=400)
@@ -860,4 +862,3 @@ def receive_momo_token_music(request):
         return JsonResponse({'success': 'Token saved successfully to all cart items'}, status=200)
     else:
         return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
-
