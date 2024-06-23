@@ -795,16 +795,19 @@ def confirm_music_purchase(request):
     if request.method == 'POST':
         try:
             user_id = request.POST.get('user_id')  # Assuming you pass the user ID in the POST request
-            momo_token = request.POST.get('momo_token')  # Assuming you pass the momo_token in the POST request
-
-            if not momo_token:
-                return JsonResponse({'error': 'MoMo token is required'}, status=400)
 
             # Retrieve all cart items for the user
             cart_items = MusicCart.objects.filter(user_id=user_id)
 
             if not cart_items.exists():
                 return JsonResponse({'error': 'No items in the cart'}, status=400)
+
+            # Check if all cart items have the same momo_token
+            momo_tokens = {item.momo_token for item in cart_items}
+            if len(momo_tokens) != 1 or None in momo_tokens:
+                return JsonResponse({'error': 'All cart items must have a valid momo_token'}, status=400)
+
+            momo_token = momo_tokens.pop()  # Get the unique momo_token
 
             # Create the MusicPurchased instance
             music_purchased = MusicPurchased.objects.create(
@@ -837,16 +840,24 @@ def confirm_music_purchase(request):
 @csrf_exempt
 def receive_momo_token_music(request):
     if request.method == 'POST':
-        id_cart = request.POST.get('id_cart')
+        user_id = request.POST.get('user_id')  # Assuming you pass the user ID in the POST request
         momo_token = request.POST.get('momo_token')
 
-        if not id_cart or not momo_token:
-            return JsonResponse({'error': 'Missing cart ID or token'}, status=400)
+        if not user_id or not momo_token:
+            return JsonResponse({'error': 'Missing user ID or token'}, status=400)
 
-        music_cart = get_object_or_404(MusicCart, pk=id_cart)
-        music_cart.momo_token = momo_token
-        music_cart.save()
+        # Retrieve all cart items for the user
+        cart_items = MusicCart.objects.filter(user_id=user_id)
 
-        return JsonResponse({'success': 'Token saved successfully'}, status=200)
+        if not cart_items.exists():
+            return JsonResponse({'error': 'No items in the cart for the user'}, status=400)
+
+        # Update the momo_token for each cart item
+        for item in cart_items:
+            item.momo_token = momo_token
+            item.save()
+
+        return JsonResponse({'success': 'Token saved successfully to all cart items'}, status=200)
     else:
         return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
+
