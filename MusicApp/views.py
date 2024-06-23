@@ -797,7 +797,7 @@ def confirm_music_purchase(request):
             id_user = request.POST.get('id_user')  # Assuming you pass the user ID in the POST request
 
             # Retrieve all cart items for the user
-            cart_items = MusicCart.objects.filter(id_user=id_user)
+            cart_items = MusicCart.objects.filter(user=id_user)
 
             if not cart_items.exists():
                 return JsonResponse({'error': 'No items in the cart'}, status=400)
