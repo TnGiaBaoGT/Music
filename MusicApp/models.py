@@ -214,7 +214,7 @@ class MusicPurchased(models.Model):
     momo_token = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
-        return f"Music Purchase {self.id_music_purchased} | User: {self.user.name_user} | Music: {self.music.name_music}"
+        return f"Music Purchase {self.id_music_purchased} | User: {self.user.name_user} "
 
 class MusicPurchasedItem(models.Model):
     music_purchased = models.ForeignKey(MusicPurchased, on_delete=models.CASCADE)
