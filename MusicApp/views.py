@@ -791,10 +791,9 @@ def musicpurchasedApi(request, id_music_purchased=0, id_user=0):
 
 
 @csrf_exempt
-def confirm_music_purchase(request):
+def confirm_music_purchase(request, id_user):
     if request.method == 'POST':
         try:
-            id_user = request.POST.get('id_user')  # Assuming you pass the user ID in the POST request
 
             # Retrieve all cart items for the user
             cart_items = MusicCart.objects.filter(user=id_user)
