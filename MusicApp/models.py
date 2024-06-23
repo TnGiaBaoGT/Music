@@ -197,7 +197,7 @@ class Purchase(models.Model):
 class MusicCart(models.Model):
     id_cart = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE,null=True,blank=True)
-    music = models.ManyToManyField(Music)
+    music = models.ForeignKey(Music, on_delete=models.CASCADE,null=True,blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     momo_token = models.CharField(max_length=255,null=True,blank=True)
     
@@ -209,12 +209,17 @@ class MusicCart(models.Model):
 class MusicPurchased(models.Model):
     id_music_purchased = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE,null=True,blank=True)
-    music = models.ForeignKey(Music, on_delete=models.CASCADE,null=True,blank=True)
+    music = models.ManyToManyField(Music, through='MusicPurchasedItem')
     purchase_date = models.DateTimeField(auto_now_add=True)
     momo_token = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
         return f"Music Purchase {self.id_music_purchased} | User: {self.user.name_user} | Music: {self.music.name_music}"
+
+class MusicPurchasedItem(models.Model):
+    music_purchased = models.ForeignKey(MusicPurchased, on_delete=models.CASCADE)
+    music = models.ForeignKey(Music, on_delete=models.CASCADE)
+
 
     
 
