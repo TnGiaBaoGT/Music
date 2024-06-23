@@ -209,7 +209,7 @@ class MusicCart(models.Model):
 class MusicPurchased(models.Model):
     id_music_purchased = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE,null=True,blank=True)
-    music = models.ManyToManyField(Music, through='MusicPurchasedItem')
+    # music = models.ManyToManyField(Music, through='MusicPurchasedItem')
     purchase_date = models.DateTimeField(auto_now_add=True)
     momo_token = models.CharField(max_length=255, null=True, blank=True)
 
