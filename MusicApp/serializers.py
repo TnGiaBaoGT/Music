@@ -4,9 +4,12 @@ from datetime import timedelta
 from django.utils import timezone
 
 class MusicSerializer(serializers.ModelSerializer):
+    formatted_price = serializers.SerializerMethodField()
     class Meta:
         model = Music
         fields = '__all__'
+    def get_formatted_price(self, obj):
+        return "{:,.0f} VND".format(obj.price_music)
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
