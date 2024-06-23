@@ -794,9 +794,11 @@ def musicpurchasedApi(request, id_music_purchased=0, id_user=0):
 def confirm_music_purchase(request, id_user):
     if request.method == 'POST':
         try:
-
+            # Retrieve the user instance
+            user = User.objects.get(pk=id_user)
+            
             # Retrieve all cart items for the user
-            cart_items = MusicCart.objects.filter(user=id_user)
+            cart_items = MusicCart.objects.filter(user=user)
 
             if not cart_items.exists():
                 return JsonResponse({'error': 'No items in the cart'}, status=400)
@@ -810,7 +812,7 @@ def confirm_music_purchase(request, id_user):
 
             # Create the MusicPurchased instance
             music_purchased = MusicPurchased.objects.create(
-                user=id_user,
+                user=user,
                 momo_token=momo_token,
                 purchase_date=timezone.now()
             )
@@ -830,12 +832,13 @@ def confirm_music_purchase(request, id_user):
 
             # Return a success response with the serialized data
             return JsonResponse(serializer.data, status=201)
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=404)
         except Exception as e:
             # Return an error response if something goes wrong
             return JsonResponse({'error': str(e)}, status=500)
     else:
         return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
-
 
 
 @csrf_exempt
