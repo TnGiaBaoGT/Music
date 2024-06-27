@@ -237,7 +237,7 @@ class ComposerEarnings(models.Model):
         # Create ComposerEarnings for the month of music upload
         cls.objects.create(
             composer=music.composer,
-            month=music.upload_date.replace(day=1),  # Use upload date of the music, set day to 1
+            month=music.upload_date,  # Use upload date of the music, set day to 1
             earnings=0,
             purchase_count=0,
             view_count=0  # Initialize view count to 0
