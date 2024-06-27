@@ -668,7 +668,7 @@ def listen_song(request, id_music):
             user = None
 
             if user_id:
-                user = get_object_or_404(User, id=user_id)
+                user = get_object_or_404(User, id_user=user_id)
 
             # Record the listen
             Listen.objects.create(music=song, user=user)
@@ -678,7 +678,7 @@ def listen_song(request, id_music):
             song.save()
 
             # Update the view count for ComposerEarnings
-            earnings_record.view_count = Listen.objects.filter(music__composer=composer, music__upload_date__month=upload_month.month).count()
+            earnings_record.view_count += 1
             earnings_record.save()
 
             return JsonResponse({"message": "Song listened"}, status=200)
@@ -694,7 +694,6 @@ def listen_song(request, id_music):
     
     else:
         return JsonResponse({"error": "Invalid HTTP method"}, status=405)
-
 
 
 @csrf_exempt
