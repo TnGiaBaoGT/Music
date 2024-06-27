@@ -3,7 +3,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
 from MusicApp.models import Music, User, Singer, Vote, Transaction, Album,Purchase, Like, MusicBundle,BundlePurchase,Listen,MusicCart,MusicPurchased,MusicPurchasedItem,ComposerEarnings
-from MusicApp.serializers import MusicSerializer, UserSerializer, SingerSerializer, VoteSerializer, TransactionSerializer, AlbumSerializer,PurchaseSerializer, LikeSerializer,MusicBundleSerializer,BundlePurchaseSerializer,MusicCartSerializer,MusicPurchasedSerializer
+from MusicApp.serializers import MusicSerializer, UserSerializer, SingerSerializer, VoteSerializer, TransactionSerializer, AlbumSerializer,PurchaseSerializer, LikeSerializer,MusicBundleSerializer,BundlePurchaseSerializer,MusicCartSerializer,MusicPurchasedSerializer,ComposerEarningsSerializer
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -910,3 +910,54 @@ def receive_momo_token_music(request):
         return JsonResponse({'success': 'Token saved successfully to all cart items'}, status=200)
     else:
         return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
+
+@csrf_exempt
+def composer_earnings_api(request, id_composer_earnings=0, id_composer=0):
+    if request.method == 'GET':
+        if id_composer > 0:
+            try:
+                earnings = ComposerEarnings.objects.filter(composer=id_composer).order_by('month')
+                earnings_serializer = ComposerEarningsSerializer(earnings, many=True)
+                return JsonResponse({'composer_earnings': earnings_serializer.data}, safe=False)
+            except ComposerEarnings.DoesNotExist:
+                return JsonResponse({'mess': 'Record not found'}, status=404)
+        
+        if id_composer_earnings > 0:
+            try:
+                earnings = ComposerEarnings.objects.get(id=id_composer_earnings)
+                earnings_serializer = ComposerEarningsSerializer(earnings)
+                return JsonResponse({'composer_earnings': earnings_serializer.data}, safe=False)
+            except ComposerEarnings.DoesNotExist:
+                return JsonResponse({'mess': 'Record not found'}, status=404)
+        
+        earnings = ComposerEarnings.objects.all().order_by('month')
+        earnings_serializer = ComposerEarningsSerializer(earnings, many=True)
+        return JsonResponse({'composer_earnings': earnings_serializer.data}, safe=False)
+    
+    elif request.method == 'POST':
+        earnings_data = JSONParser().parse(request)
+        earnings_serializer = ComposerEarningsSerializer(data=earnings_data)
+        if earnings_serializer.is_valid():
+            earnings_serializer.save()
+            return JsonResponse({'mess': 'Added Successfully'}, safe=False)
+        return JsonResponse(earnings_serializer.errors, safe=False, status=400)
+    
+    elif request.method == 'PUT':
+        earnings_data = JSONParser().parse(request)
+        try:
+            earnings = ComposerEarnings.objects.get(id=id_composer_earnings)
+            earnings_serializer = ComposerEarningsSerializer(earnings, data=earnings_data, partial=True)  # Use partial update
+            if earnings_serializer.is_valid():
+                earnings_serializer.save()
+                return JsonResponse({'mess': 'Updated Successfully'}, safe=False)
+            return JsonResponse(earnings_serializer.errors, safe=False, status=400)
+        except ComposerEarnings.DoesNotExist:
+            return JsonResponse({'mess': 'Record not found'}, status=404)
+    
+    elif request.method == 'DELETE':
+        try:
+            earnings = ComposerEarnings.objects.get(id=id_composer_earnings)
+            earnings.delete()
+            return JsonResponse({'mess': 'Deleted Successfully'}, safe=False)
+        except ComposerEarnings.DoesNotExist:
+            return JsonResponse({'mess': 'Record not found'}, status=404)
