@@ -2,6 +2,7 @@ from django.db import models
 from cloudinary_storage.storage import RawMediaCloudinaryStorage
 from django.utils import timezone
 from datetime import timedelta
+from datetime import datetime
 
 class User (models.Model):
     id_user = models.AutoField(primary_key=True)
@@ -47,6 +48,7 @@ class Music (models.Model):
     num_vote = models.PositiveIntegerField(default=0)
     composer = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, limit_choices_to={'name_role': 'COMPOSER'}, related_name='music_composed')
     listen_count = models.IntegerField(default=0)
+    upload_date = models.DateTimeField(default=datetime.now)
     
     def __str__(self):
         return self.name_music
@@ -219,6 +221,27 @@ class MusicPurchased(models.Model):
 class MusicPurchasedItem(models.Model):
     music_purchased = models.ForeignKey(MusicPurchased, on_delete=models.CASCADE)
     music = models.ForeignKey(Music, on_delete=models.CASCADE)
+
+class ComposerEarnings(models.Model):
+    composer = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'name_role': 'Composer'})
+    month = models.DateField()  # No default value
+    earnings = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    purchase_count = models.IntegerField(default=0)
+    view_count = models.IntegerField(default=0)  # New field for view count
+
+    def __str__(self):
+        return f"Composer: {self.composer.name_user} | Month: {self.month.strftime('%Y-%m')} | Earnings: {self.earnings}"
+
+    @classmethod
+    def create_for_music_upload(cls, music):
+        # Create ComposerEarnings for the month of music upload
+        cls.objects.create(
+            composer=music.composer,
+            month=music.upload_date.replace(day=1),  # Use upload date of the music, set day to 1
+            earnings=0,
+            purchase_count=0,
+            view_count=0  # Initialize view count to 0
+        )
 
 
     
