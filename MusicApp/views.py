@@ -12,6 +12,8 @@ import json
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 from datetime import datetime
+from django.db.models import F
+
 
 @csrf_exempt
 def musicApi(request, id_music=0):
@@ -648,29 +650,51 @@ def receive_momo_token(request):
 def listen_song(request, id_music):
     if request.method == 'POST':
         try:
-            song = Music.objects.get(id_music=id_music)
-            user = None
+            # Retrieve the music object
+            song = get_object_or_404(Music, id_music=id_music)
+            
+            # Retrieve or create ComposerEarnings record for the upload month of the music
+            composer = song.composer
+            upload_month = song.upload_date.replace(day=1)
+            earnings_record, created = ComposerEarnings.objects.get_or_create(
+                composer=composer,
+                month=upload_month,
+                defaults={'earnings': 0, 'purchase_count': 0, 'view_count': 0}
+            )
 
-            # Assuming the user_id is sent in the request body
+            # Assuming user_id is sent in the request body
             data = json.loads(request.body)
             user_id = data.get('user_id')
+            user = None
 
             if user_id:
-                user = get_object_or_404(User, id_user=user_id)
+                user = get_object_or_404(User, id=user_id)
 
+            # Record the listen
             Listen.objects.create(music=song, user=user)
+
+            # Increment the listen count for the music
             song.listen_count += 1
             song.save()
 
+            # Update the view count for ComposerEarnings
+            earnings_record.view_count = Listen.objects.filter(music__composer=composer, music__upload_date__month=upload_month.month).count()
+            earnings_record.save()
+
             return JsonResponse({"message": "Song listened"}, status=200)
+        
         except Music.DoesNotExist:
             return JsonResponse({"error": "Song not found"}, status=404)
+        
         except User.DoesNotExist:
             return JsonResponse({"error": "User not found"}, status=404)
+        
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)
+    
     else:
         return JsonResponse({"error": "Invalid HTTP method"}, status=405)
+
 
 
 @csrf_exempt
@@ -828,6 +852,23 @@ def confirm_music_purchase(request, id_user):
                     music=item.music
                 )
 
+                # Update composer earnings
+                composer = item.music.composer
+                earning_amount = item.music.price_music * 0.7
+                upload_month = item.music.upload_date.replace(day=1)
+
+                # Ensure ComposerEarnings record exists for upload month
+                earnings_record, created = ComposerEarnings.objects.get_or_create(
+                    composer=composer, 
+                    month=upload_month,
+                    defaults={'earnings': 0, 'purchase_count': 0}
+                )
+
+                # Update earnings and purchase count
+                earnings_record.earnings = F('earnings') + earning_amount
+                earnings_record.purchase_count = F('purchase_count') + 1
+                earnings_record.save()
+
             # Delete all cart items for the user
             cart_items.delete()
 
@@ -843,6 +884,7 @@ def confirm_music_purchase(request, id_user):
             return JsonResponse({'error': str(e)}, status=500)
     else:
         return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
+
 
 
 @csrf_exempt
