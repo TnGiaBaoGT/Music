@@ -223,7 +223,7 @@ class MusicPurchasedItem(models.Model):
     music = models.ForeignKey(Music, on_delete=models.CASCADE)
 
 class ComposerEarnings(models.Model):
-    composer = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'name_role': 'Composer'})
+    composer = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'name_role': 'COMPOSER'})
     month = models.DateField()  # No default value
     earnings = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     purchase_count = models.IntegerField(default=0)
