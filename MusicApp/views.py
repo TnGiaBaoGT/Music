@@ -2,7 +2,7 @@ from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
-from MusicApp.models import Music, User, Singer, Vote, Transaction, Album,Purchase, Like, MusicBundle,BundlePurchase,Listen,MusicCart,MusicPurchased,MusicPurchasedItem
+from MusicApp.models import Music, User, Singer, Vote, Transaction, Album,Purchase, Like, MusicBundle,BundlePurchase,Listen,MusicCart,MusicPurchased,MusicPurchasedItem,ComposerEarnings
 from MusicApp.serializers import MusicSerializer, UserSerializer, SingerSerializer, VoteSerializer, TransactionSerializer, AlbumSerializer,PurchaseSerializer, LikeSerializer,MusicBundleSerializer,BundlePurchaseSerializer,MusicCartSerializer,MusicPurchasedSerializer
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
@@ -11,38 +11,42 @@ from rest_framework.request import Request
 import json
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
+from datetime import datetime
 
 @csrf_exempt
-def musicApi(request, id_music=0, id_user=0):
+def musicApi(request, id_music=0):
+    # Wrap the WSGIRequest with DRF Request to use parsers
     drf_request = Request(request, parsers=[MultiPartParser(), FormParser()])
 
     if request.method == 'GET':
-        if id_user > 0:
-            try:
-                music = Music.objects.filter(composer=id_user).order_by('id_music')
-                music_serializer = MusicSerializer(music, many=True)
-                return JsonResponse({'music': music_serializer.data}, safe=False)
-            except ObjectDoesNotExist:
-                return JsonResponse({'mess': 'Record not found'}, status=404)
-        
-        if id_music > 0:
+        if id_music == 0:
+            # Retrieve all music items and order them by id_music
+            music = Music.objects.all().order_by('id_music')
+            music_serializer = MusicSerializer(music, many=True)
+        else:
             try:
                 music = Music.objects.get(id_music=id_music)
                 music_serializer = MusicSerializer(music)
-                return JsonResponse({'music': music_serializer.data}, safe=False)
             except Music.DoesNotExist:
                 return JsonResponse({'mess': 'Record not found'}, status=404)
-        
-        music = Music.objects.all().order_by('id_music')
-        music_serializer = MusicSerializer(music, many=True)
         return JsonResponse({'music': music_serializer.data}, safe=False)
-    
+
     elif request.method == 'POST':
         music_serializer = MusicSerializer(data=drf_request.data)
         if music_serializer.is_valid():
-            music_serializer.save()
+            music = music_serializer.save()
+
+            # Create ComposerEarnings record for the current month
+            composer = music.composer
+            current_month = datetime.now().replace(day=1)
+            ComposerEarnings.objects.get_or_create(
+                composer=composer,
+                month=current_month,
+                defaults={'earnings': 0, 'purchase_count': 0}
+            )
+
             return JsonResponse({'mess': 'Added Successfully'}, safe=False)
-        return JsonResponse(music_serializer.errors, safe=False, status=400)
+        return JsonResponse({'mess': 'Failed to Add'}, safe=False, status=400)
     
     elif request.method == 'PUT':
         try:
