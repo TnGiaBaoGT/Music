@@ -80,6 +80,10 @@ urlpatterns = [
 
     path('confirm-music-purchase/<int:id_user>/', views.confirm_music_purchase),
     path('receive_momo_token_music/', views.receive_momo_token_music),
+
+    path('composer_earnings/', views.composer_earnings_api),
+    path('composer_earnings/<int:id_composer_earnings>/', views.composer_earnings_api),
+    path('composer_earnings/composer/<int:id_composer>/', views.composer_earnings_api),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
