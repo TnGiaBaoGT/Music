@@ -248,15 +248,17 @@ class ComposerEarnings(models.Model):
 class ComposerEarningsDetail(models.Model):
     composer_earnings = models.OneToOneField(ComposerEarnings, on_delete=models.CASCADE)
     momo_token = models.CharField(max_length=255, null=True, blank=True)
+    earnings = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    purchase_count = models.IntegerField(default=0)
+    view_count = models.IntegerField(default=0)
     total_earnings = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     def calculate_total_earnings(self):
-        self.total_earnings = self.composer_earnings.earnings + (self.composer_earnings.view_count * 50)
+        self.total_earnings = self.earnings + (self.view_count * 50)
         self.save()
 
     def __str__(self):
         return f"Composer: {self.composer_earnings.composer.name_user} | Total Earnings: {self.total_earnings}"
-
 
 
     
