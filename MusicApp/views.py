@@ -660,9 +660,10 @@ def listen_song(request, id_music):
             
             # Retrieve or create ComposerEarnings record for the upload month of the music
             composer = song.composer
-            upload_month = song.upload_date.replace(day=1)
+            upload_month = song.upload_date.replace(day=1)  # Set to the first day of the month
             earnings_record, created = ComposerEarnings.objects.get_or_create(
                 composer=composer,
+                music=song,
                 month=upload_month,
                 defaults={'earnings': 0, 'purchase_count': 0, 'view_count': 0}
             )
@@ -859,13 +860,14 @@ def confirm_music_purchase(request, id_user):
                 # Update composer earnings
                 composer = item.music.composer
                 earning_amount = item.music.price_music * 0.7
-                upload_month = item.music.upload_date
+                upload_month = item.music.upload_date.replace(day=1)  # Set day to 1
 
                 # Ensure ComposerEarnings record exists for upload month
                 earnings_record, created = ComposerEarnings.objects.get_or_create(
-                    composer=composer, 
+                    composer=composer,
+                    music=item.music,
                     month=upload_month,
-                    defaults={'earnings': 0, 'purchase_count': 0,'view_count': 0}
+                    defaults={'earnings': 0, 'purchase_count': 0, 'view_count': 0}
                 )
 
                 # Update earnings and purchase count
@@ -881,14 +883,16 @@ def confirm_music_purchase(request, id_user):
 
             # Return a success response with the serialized data
             return JsonResponse(serializer.data, status=201)
+        
         except User.DoesNotExist:
             return JsonResponse({'error': 'User not found'}, status=404)
+        
         except Exception as e:
             # Return an error response if something goes wrong
             return JsonResponse({'error': str(e)}, status=500)
+    
     else:
         return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
-
 
 
 @csrf_exempt
