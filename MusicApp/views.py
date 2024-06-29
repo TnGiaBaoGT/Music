@@ -859,13 +859,13 @@ def confirm_music_purchase(request, id_user):
                 # Update composer earnings
                 composer = item.music.composer
                 earning_amount = item.music.price_music * 0.7
-                upload_month = item.music.upload_date.replace(day=1)
+                upload_month = item.music.upload_date
 
                 # Ensure ComposerEarnings record exists for upload month
                 earnings_record, created = ComposerEarnings.objects.get_or_create(
                     composer=composer, 
                     month=upload_month,
-                    defaults={'earnings': 0, 'purchase_count': 0}
+                    defaults={'earnings': 0, 'purchase_count': 0,'view_count': 0}
                 )
 
                 # Update earnings and purchase count
