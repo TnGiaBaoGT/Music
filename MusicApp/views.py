@@ -660,7 +660,7 @@ def listen_song(request, id_music):
             
             # Retrieve or create ComposerEarnings record for the upload month of the music
             composer = song.composer
-            upload_month = song.upload_date.replace(day=1)  # Set to the first day of the month
+            upload_month = song.upload_date  # Set to the first day of the month
             earnings_record, created = ComposerEarnings.objects.get_or_create(
                 composer=composer,
                 music=song,
