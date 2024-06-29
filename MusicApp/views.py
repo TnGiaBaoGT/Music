@@ -2,8 +2,8 @@ from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
-from MusicApp.models import Music, User, Singer, Vote, Transaction, Album,Purchase, Like, MusicBundle,BundlePurchase,Listen,MusicCart,MusicPurchased,MusicPurchasedItem,ComposerEarnings
-from MusicApp.serializers import MusicSerializer, UserSerializer, SingerSerializer, VoteSerializer, TransactionSerializer, AlbumSerializer,PurchaseSerializer, LikeSerializer,MusicBundleSerializer,BundlePurchaseSerializer,MusicCartSerializer,MusicPurchasedSerializer,ComposerEarningsSerializer
+from MusicApp.models import Music, User, Singer, Vote, Transaction, Album,Purchase, Like, MusicBundle,BundlePurchase,Listen,MusicCart,MusicPurchased,MusicPurchasedItem,ComposerEarnings,ComposerEarningsDetail
+from MusicApp.serializers import MusicSerializer, UserSerializer, SingerSerializer, VoteSerializer, TransactionSerializer, AlbumSerializer,PurchaseSerializer, LikeSerializer,MusicBundleSerializer,BundlePurchaseSerializer,MusicCartSerializer,MusicPurchasedSerializer,ComposerEarningsSerializer,ComposerEarningsDetailSerializer
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -969,3 +969,76 @@ def composer_earnings_api(request, id_composer_earnings=0, id_composer=0):
             return JsonResponse({'mess': 'Deleted Successfully'}, safe=False)
         except ComposerEarnings.DoesNotExist:
             return JsonResponse({'mess': 'Record not found'}, status=404)
+
+
+@csrf_exempt
+def composer_earnings_detail(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            earnings_id = data.get('composer_earnings_id')
+
+            composer_earnings = ComposerEarnings.objects.get(pk=earnings_id)
+
+            # Get or create the detail record
+            detail, created = ComposerEarningsDetail.objects.get_or_create(
+                composer_earnings=composer_earnings
+            )
+
+            # Calculate total earnings
+            detail.calculate_total_earnings()
+            detail.save()
+
+            return JsonResponse({
+                'message': 'Composer earnings detail updated successfully' if not created else 'created successfully',
+                'composer_earnings_detail': {
+                    'id': detail.id,
+                    'composer_earnings': detail.composer_earnings.id,
+                    'momo_token': detail.momo_token,
+                    'total_earnings': str(detail.total_earnings)
+                }
+            }, status=200 if not created else 201)
+
+        except ComposerEarnings.DoesNotExist:
+            return JsonResponse({'error': 'Composer earnings not found'}, status=404)
+        
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    
+    else:
+        return JsonResponse({'error': 'Invalid HTTP method'}, status=405)
+
+
+@csrf_exempt
+def receive_momo_token_composer_earnings(request):
+    if request.method == 'POST':
+        composer_earnings_id = request.POST.get('composer_earnings_id')
+        momo_token = request.POST.get('momo_token')
+
+        if not composer_earnings_id or not momo_token:
+            return JsonResponse({'error': 'Missing earnings ID or token'}, status=400)
+
+        # Retrieve the ComposerEarningsDetail object
+        detail = get_object_or_404(ComposerEarningsDetail, composer_earnings_id=composer_earnings_id)
+        detail.momo_token = momo_token
+        detail.save()
+
+        return JsonResponse({'success': 'Token saved successfully'}, status=200)
+    
+    else:
+        return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
+
+
+@csrf_exempt
+def composer_earnings_detail_api(request, composer_earnings_id=0):
+    if request.method == 'GET':
+        if composer_earnings_id > 0:
+            try:
+                composer_earnings = ComposerEarnings.objects.get(pk=composer_earnings_id)
+                composer_earnings_detail = ComposerEarningsDetail.objects.get(composer_earnings=composer_earnings)
+                serializer = ComposerEarningsDetailSerializer(composer_earnings_detail)
+                return JsonResponse(serializer.data, status=200)
+            except ObjectDoesNotExist:
+                return JsonResponse({'error': 'ComposerEarningsDetail not found for this ComposerEarnings'}, status=404)
+        else:
+            return JsonResponse({'error': 'Invalid composer_earnings_id'}, status=400)
