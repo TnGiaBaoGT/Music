@@ -44,11 +44,13 @@ def musicApi(request, id_user=0, id_music=0):
 
             # Create ComposerEarnings record for the current month
             composer = music.composer
-            current_month = datetime.now().replace(day=1)
+            current_month = music.upload_date
+            music = music.music
             ComposerEarnings.objects.get_or_create(
                 composer=composer,
                 month=current_month,
-                defaults={'earnings': 0, 'purchase_count': 0}
+                music = music,
+                defaults={'earnings': 0, 'purchase_count': 0,'view_count': 0}
             )
 
             return JsonResponse({'mess': 'Added Successfully'}, safe=False)
