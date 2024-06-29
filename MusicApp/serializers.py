@@ -106,6 +106,7 @@ class MusicPurchasedSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ComposerEarningsSerializer(serializers.ModelSerializer):
+    music_track = MusicSerializer(source="music",read_only=True)
     class Meta:
         model = ComposerEarnings
         fields = '__all__'
