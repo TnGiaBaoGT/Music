@@ -48,7 +48,7 @@ def musicApi(request, id_user=0, id_music=0):
             ComposerEarnings.objects.get_or_create(
                 composer=composer,
                 month=current_month,
-                music = id_music,
+                music = music,
                 defaults={'earnings': 0, 'purchase_count': 0,'view_count': 0}
             )
 
