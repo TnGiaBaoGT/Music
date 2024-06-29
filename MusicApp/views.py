@@ -985,19 +985,33 @@ def composer_earnings_detail(request):
                 composer_earnings=composer_earnings
             )
 
+            # Update earnings, purchase_count, and view_count
+            detail.earnings += composer_earnings.earnings
+            detail.purchase_count += composer_earnings.purchase_count
+            detail.view_count += composer_earnings.view_count
+
+            # Reset original values in ComposerEarnings
+            composer_earnings.earnings = 0
+            composer_earnings.purchase_count = 0
+            composer_earnings.view_count = 0
+            composer_earnings.save()
+
             # Calculate total earnings
             detail.calculate_total_earnings()
             detail.save()
 
             return JsonResponse({
-                'message': 'Composer earnings detail updated successfully' if not created else 'created successfully',
+                'message': 'Composer earnings detail updated successfully',
                 'composer_earnings_detail': {
                     'id': detail.id,
                     'composer_earnings': detail.composer_earnings.id,
                     'momo_token': detail.momo_token,
-                    'total_earnings': str(detail.total_earnings)
+                    'total_earnings': str(detail.total_earnings),
+                    'earnings': str(detail.earnings),
+                    'purchase_count': detail.purchase_count,
+                    'view_count': detail.view_count,
                 }
-            }, status=200 if not created else 201)
+            }, status=200)
 
         except ComposerEarnings.DoesNotExist:
             return JsonResponse({'error': 'Composer earnings not found'}, status=404)
@@ -1007,7 +1021,6 @@ def composer_earnings_detail(request):
     
     else:
         return JsonResponse({'error': 'Invalid HTTP method'}, status=405)
-
 
 @csrf_exempt
 def receive_momo_token_composer_earnings(request):
