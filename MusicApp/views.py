@@ -860,7 +860,7 @@ def confirm_music_purchase(request, id_user):
                 # Update composer earnings
                 composer = item.music.composer
                 earning_amount = item.music.price_music * 0.7
-                upload_month = item.music.upload_date.replace(day=1)  # Set day to 1
+                upload_month = item.music.upload_date  # Set day to 1
 
                 # Ensure ComposerEarnings record exists for upload month
                 earnings_record, created = ComposerEarnings.objects.get_or_create(
