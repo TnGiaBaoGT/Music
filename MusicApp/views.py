@@ -45,7 +45,6 @@ def musicApi(request, id_user=0, id_music=0):
             # Create ComposerEarnings record for the current month
             composer = music.composer
             current_month = music.upload_date
-            music = music_serializer.save()
             ComposerEarnings.objects.get_or_create(
                 composer=composer,
                 month=current_month,
