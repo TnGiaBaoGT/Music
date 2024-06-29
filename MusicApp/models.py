@@ -228,6 +228,7 @@ class ComposerEarnings(models.Model):
     earnings = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     purchase_count = models.IntegerField(default=0)
     view_count = models.IntegerField(default=0)  # New field for view count
+    music = models.ForeignKey(Music, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return f"Composer: {self.composer.name_user} | Month: {self.month.strftime('%Y-%m')} | Earnings: {self.earnings}"
