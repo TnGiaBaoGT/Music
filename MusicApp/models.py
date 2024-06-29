@@ -241,7 +241,8 @@ class ComposerEarnings(models.Model):
             month=music.upload_date,  # Use upload date of the music, set day to 1
             earnings=0,
             purchase_count=0,
-            view_count=0  # Initialize view count to 0
+            view_count=0,
+            music=music
         )
 
 
