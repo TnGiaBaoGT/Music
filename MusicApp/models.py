@@ -274,6 +274,10 @@ class Ads (models.Model):
         self.total_earnings_ads = self.price_ads * self.view_count
         self.save()
 
+    def increment_view_count(self):
+        self.view_count += 1
+        self.calculate_total_earnings_ads()
+
     def __str__(self):
         return f"Views: {self.view_count} | Price: {self.price_ads} | Total Earnings:{self.total_earnings_ads}"
     
