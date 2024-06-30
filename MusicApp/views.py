@@ -2,8 +2,8 @@ from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
-from MusicApp.models import Music, User, Singer, Vote, Transaction, Album,Purchase, Like, MusicBundle,BundlePurchase,Listen,MusicCart,MusicPurchased,MusicPurchasedItem,ComposerEarnings,ComposerEarningsDetail
-from MusicApp.serializers import MusicSerializer, UserSerializer, SingerSerializer, VoteSerializer, TransactionSerializer, AlbumSerializer,PurchaseSerializer, LikeSerializer,MusicBundleSerializer,BundlePurchaseSerializer,MusicCartSerializer,MusicPurchasedSerializer,ComposerEarningsSerializer,ComposerEarningsDetailSerializer
+from MusicApp.models import Music, User, Singer, Vote, Transaction, Album,Purchase, Like, MusicBundle,BundlePurchase,Listen,MusicCart,MusicPurchased,MusicPurchasedItem,ComposerEarnings,ComposerEarningsDetail,Ads
+from MusicApp.serializers import MusicSerializer, UserSerializer, SingerSerializer, VoteSerializer, TransactionSerializer, AlbumSerializer,PurchaseSerializer, LikeSerializer,MusicBundleSerializer,BundlePurchaseSerializer,MusicCartSerializer,MusicPurchasedSerializer,ComposerEarningsSerializer,ComposerEarningsDetailSerializer,AdsSerializer
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -1055,3 +1055,44 @@ def composer_earnings_detail_api(request, composer_earnings_id=0):
                 return JsonResponse({'error': 'ComposerEarningsDetail not found for this ComposerEarnings'}, status=404)
         else:
             return JsonResponse({'error': 'Invalid composer_earnings_id'}, status=400)
+
+
+
+@csrf_exempt
+def adsApi(request, id_ads=0):
+    if request.method == 'GET':
+        if id_ads == 0:
+            ads = Ads.objects.all()
+            ads_serializer = AdsSerializer(ads, many=True)
+        else:
+            try:
+                ads = Ads.objects.get(id_ads=id_ads)
+                ads_serializer = AdsSerializer(ads)
+            except Ads.DoesNotExist:
+                return JsonResponse({'mess': 'Record not found'}, status=404)
+        return JsonResponse({'singer':ads_serializer.data}, safe=False)
+
+@csrf_exempt
+def increment_view_count(request, id_ads):
+    if request.method == 'POST':
+        ad = get_object_or_404(Ads, id_ads=id_ads)
+
+        try:
+            data = json.loads(request.body)
+            user_id = data.get('user_id')
+        except (json.JSONDecodeError, KeyError):
+            return JsonResponse({'error': 'Invalid JSON data'}, status=400)
+        
+        if not user_id:
+            return JsonResponse({'error': 'user_id is missing'}, status=400)
+        
+        user_exists = User.objects.filter(id_user=user_id).exists()
+        if not user_exists:
+            return JsonResponse({'error': 'User does not exist'}, status=404)
+        
+        # Increment view_count logic
+        ad.increment_view_count()  # Assuming this method updates the view_count
+        
+        return JsonResponse({'status': 'success', 'ad_id': id_ads, 'view_count': ad.view_count})
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)
