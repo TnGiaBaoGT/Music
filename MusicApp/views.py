@@ -1070,7 +1070,7 @@ def adsApi(request, id_ads=0):
                 ads_serializer = AdsSerializer(ads)
             except Ads.DoesNotExist:
                 return JsonResponse({'mess': 'Record not found'}, status=404)
-        return JsonResponse({'singer':ads_serializer.data}, safe=False)
+        return JsonResponse({'ads':ads_serializer.data}, safe=False)
 
 @csrf_exempt
 def increment_view_count(request, id_ads):
