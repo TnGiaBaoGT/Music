@@ -260,6 +260,21 @@ class ComposerEarningsDetail(models.Model):
     def __str__(self):
         return f"Composer: {self.composer_earnings.composer.name_user} | Total Earnings: {self.total_earnings}"
 
+class Ads (models.Model):
+    id_ads = models.AutoField(primary_key=True)
+    name_ads = models.CharField(max_length=255)
+    description_ads = models.CharField(max_length=255)
+    image_ads = models.ImageField(upload_to='ads_image/',storage=RawMediaCloudinaryStorage())
+    view_count = models.IntegerField(default=0)
+    price_ads = models.DecimalField(max_digits=10, decimal_places=2,default=0)
+    total_earnings_ads = models.DecimalField(max_digits=10,decimal_places=2,default=0)
 
+
+    def calculate_total_earnings_ads(self):
+        self.total_earnings_ads = self.price_ads * self.view_count
+        self.save()
+
+    def __str__(self):
+        return f"Views: {self.view_count} | Price: {self.price_ads} | Total Earnings:{self.total_earnings_ads}"
     
 
