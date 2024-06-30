@@ -87,6 +87,10 @@ urlpatterns = [
 
     path('composer-earnings-detail/', views.composer_earnings_detail),
     path('composer-earnings-detail/<int:composer_earnings_id>/', views.composer_earnings_detail_api),
+
+    path('ads/', views.adsApi),
+    path('ads/<int:id_ads>/', views.adsApi),
+    path('ads/<int:id_ads>/onclick/', views.increment_view_count)
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
