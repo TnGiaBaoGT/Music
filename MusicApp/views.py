@@ -16,25 +16,27 @@ from django.db.models import F
 
 
 @csrf_exempt
-def musicApi(request, id_user=0, id_music=0):
+def musicApi(request, id_music=0, id_user=0):
     # Wrap the WSGIRequest with DRF Request to use parsers
     drf_request = Request(request, parsers=[MultiPartParser(), FormParser()])
 
     if request.method == 'GET':
-        if id_music == 0:
-            if id_user == 0:
-                # Retrieve all music items and order them by id_music
-                music = Music.objects.all().order_by('id_music')
-            else:
-                # Retrieve all music items for the given composer and order them by id_music
-                music = Music.objects.filter(composer=id_user).order_by('id_music')
-            music_serializer = MusicSerializer(music, many=True)
-        else:
+        if id_music != 0:
             try:
-                music = Music.objects.get(id_music=id_music, composer=id_user)
+                # Retrieve the specific music item by id_music
+                music = Music.objects.get(id_music=id_music)
                 music_serializer = MusicSerializer(music)
             except Music.DoesNotExist:
                 return JsonResponse({'mess': 'Record not found'}, status=404)
+        elif id_user != 0:
+            # Retrieve all music items for the given composer and order them by id_music
+            music = Music.objects.filter(composer=id_user).order_by('id_music')
+            music_serializer = MusicSerializer(music, many=True)
+        else:
+            # Retrieve all music items and order them by id_music
+            music = Music.objects.all().order_by('id_music')
+            music_serializer = MusicSerializer(music, many=True)
+
         return JsonResponse({'music': music_serializer.data}, safe=False)
 
     elif request.method == 'POST':
