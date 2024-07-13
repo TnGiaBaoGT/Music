@@ -301,4 +301,4 @@ class Report(models.Model):
     report_date = models.DateTimeField(default=datetime.now)
 
     def __str__(self):
-        return f"User: {self.user.name_user} | Music: {self.music.name_music} | Report: {self.report_choice} on {self.report_date}"
+        return f"User: {self.user.name_user} | Music: {self.music.name_music} | Report: {self.report_choice}"
