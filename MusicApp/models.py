@@ -298,7 +298,7 @@ class Report(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     music = models.ForeignKey(Music, on_delete=models.CASCADE)
     notes = models.TextField(blank=True, null=True)
-    report_date = models.DateTimeField(auto_now_add=True)
+    report_date = models.DateTimeField(default=datetime.now)
 
     def __str__(self):
-        return f"User: {self.user.name_user} | Music: {self.music.name_music} | Report: {self.report_choice}"
+        return f"User: {self.user.name_user} | Music: {self.music.name_music} | Report: {self.report_choice} on {self.report_date}"
