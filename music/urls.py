@@ -92,6 +92,8 @@ urlpatterns = [
     path('ads/<int:id_ads>/', views.adsApi),
     path('ads/<int:id_ads>/onclick/', views.increment_view_count),
 
+    path('report/<int:id_user>', views.getReports),
+    path('report/all', views.getReports),
     path('report/', views.reportApi)
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
