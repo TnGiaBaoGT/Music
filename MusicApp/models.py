@@ -282,3 +282,22 @@ class Ads (models.Model):
         return f"Views: {self.view_count} | Price: {self.price_ads} | Total Earnings:{self.total_earnings_ads}"
     
 
+class Report(models.Model):
+    id_report = models.AutoField(primary_key=True)
+    
+    REPORT_CHOICES = [
+        ('COPYRIGHT_INFRINGEMENT', 'Vi phạm bản quyền'),
+        ('PLAGIARISM', 'Đạo nhạc'),
+        ('UNAUTHORIZED_SAMPLING', 'Sử dụng trái phép mẫu âm thanh'),
+        ('UNAUTHORIZED_COVER', 'Cover không được phép'),
+        ('UNAUTHORIZED_PUBLIC_PERFORMANCE', 'Biểu diễn công khai không được phép'),
+        ('UNAUTHORIZED_DISTRIBUTION', 'Phân phối không được phép'),
+    ]
+    
+    report_choice = models.CharField(max_length=50, choices=REPORT_CHOICES, default='COPYRIGHT_INFRINGEMENT')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    music = models.ForeignKey(Music, on_delete=models.CASCADE)
+    report_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"User: {self.user.name_user} | Music: {self.music.name_music} | Report: {self.report_choice}"
