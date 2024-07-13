@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Music, User, Purchase, Singer, Vote, Transaction, Album, Like, MusicBundle,BundlePurchase,Listen,MusicCart,MusicPurchased,ComposerEarnings,ComposerEarningsDetail,Ads
+from .models import Music, User, Purchase, Singer, Vote, Transaction, Album, Like, MusicBundle,BundlePurchase,Listen,MusicCart,MusicPurchased,ComposerEarnings,ComposerEarningsDetail,Ads,Report
 
 admin.site.register(Music)
 admin.site.register(User)
@@ -25,4 +25,4 @@ admin.site.register(MusicPurchased)
 admin.site.register(ComposerEarnings)
 admin.site.register(ComposerEarningsDetail)
 admin.site.register(Ads)
-
+admin.site.register(Report)
