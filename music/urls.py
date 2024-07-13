@@ -90,7 +90,9 @@ urlpatterns = [
 
     path('ads/', views.adsApi),
     path('ads/<int:id_ads>/', views.adsApi),
-    path('ads/<int:id_ads>/onclick/', views.increment_view_count)
+    path('ads/<int:id_ads>/onclick/', views.increment_view_count),
+
+    path('report/', views.reportApi)
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
