@@ -297,6 +297,7 @@ class Report(models.Model):
     report_choice = models.CharField(max_length=50, choices=REPORT_CHOICES, default='COPYRIGHT_INFRINGEMENT')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     music = models.ForeignKey(Music, on_delete=models.CASCADE)
+    notes = models.TextField(blank=True, null=True)
     report_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
