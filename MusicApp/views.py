@@ -2,7 +2,7 @@ from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
-from MusicApp.models import Music, User, Singer, Vote, Transaction, Album,Purchase, Like, MusicBundle,BundlePurchase,Listen,MusicCart,MusicPurchased,MusicPurchasedItem,ComposerEarnings,ComposerEarningsDetail,Ads
+from MusicApp.models import Music, User, Singer, Vote, Transaction, Album,Purchase, Like, MusicBundle,BundlePurchase,Listen,MusicCart,MusicPurchased,MusicPurchasedItem,ComposerEarnings,ComposerEarningsDetail,Ads,Report
 from MusicApp.serializers import MusicSerializer, UserSerializer, SingerSerializer, VoteSerializer, TransactionSerializer, AlbumSerializer,PurchaseSerializer, LikeSerializer,MusicBundleSerializer,BundlePurchaseSerializer,MusicCartSerializer,MusicPurchasedSerializer,ComposerEarningsSerializer,ComposerEarningsDetailSerializer,AdsSerializer,ReportSerializer
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
@@ -1101,6 +1101,19 @@ def increment_view_count(request, id_ads):
 
 
 @csrf_exempt
+def getReports(request, id_user=None):
+    if request.method == 'GET':
+        if id_user is not None:
+            reports = Report.objects.filter(user_id=id_user)
+        else:
+            reports = Report.objects.all()
+        
+        report_serializer = ReportSerializer(reports, many=True)
+        return JsonResponse(report_serializer.data, safe=False)
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+@csrf_exempt
 def reportApi(request):
     if request.method == 'POST':
         report_data = JSONParser().parse(request)
@@ -1109,3 +1122,5 @@ def reportApi(request):
             report_serializer.save()
             return JsonResponse(report_serializer.data, status=201)
         return JsonResponse(report_serializer.errors, status=400)
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
