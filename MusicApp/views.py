@@ -3,7 +3,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
 from MusicApp.models import Music, User, Singer, Vote, Transaction, Album,Purchase, Like, MusicBundle,BundlePurchase,Listen,MusicCart,MusicPurchased,MusicPurchasedItem,ComposerEarnings,ComposerEarningsDetail,Ads
-from MusicApp.serializers import MusicSerializer, UserSerializer, SingerSerializer, VoteSerializer, TransactionSerializer, AlbumSerializer,PurchaseSerializer, LikeSerializer,MusicBundleSerializer,BundlePurchaseSerializer,MusicCartSerializer,MusicPurchasedSerializer,ComposerEarningsSerializer,ComposerEarningsDetailSerializer,AdsSerializer
+from MusicApp.serializers import MusicSerializer, UserSerializer, SingerSerializer, VoteSerializer, TransactionSerializer, AlbumSerializer,PurchaseSerializer, LikeSerializer,MusicBundleSerializer,BundlePurchaseSerializer,MusicCartSerializer,MusicPurchasedSerializer,ComposerEarningsSerializer,ComposerEarningsDetailSerializer,AdsSerializer,ReportSerializer
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -1098,3 +1098,14 @@ def increment_view_count(request, id_ads):
         return JsonResponse({'status': 'success', 'ad_id': id_ads, 'view_count': ad.view_count})
 
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+@csrf_exempt
+def reportApi(request):
+    if request.method == 'POST':
+        report_data = JSONParser().parse(request)
+        report_serializer = ReportSerializer(data=report_data)
+        if report_serializer.is_valid():
+            report_serializer.save()
+            return JsonResponse(report_serializer.data, status=201)
+        return JsonResponse(report_serializer.errors, status=400)
