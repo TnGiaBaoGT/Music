@@ -13,6 +13,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 from datetime import datetime
 from django.db.models import F
+from django.db import transaction
 
 
 @csrf_exempt
@@ -845,47 +846,49 @@ def confirm_music_purchase(request, id_user):
 
             momo_token = momo_tokens.pop()  # Get the unique momo_token
 
-            # Create the MusicPurchased instance
-            music_purchased = MusicPurchased.objects.create(
-                user=user,
-                momo_token=momo_token,
-                purchase_date=timezone.now()
-            )
-
-            # Add each music item from the cart to the purchased music
-            for item in cart_items:
-                MusicPurchasedItem.objects.create(
-                    music_purchased=music_purchased,
-                    music=item.music
+            with transaction.atomic():
+                # Create the MusicPurchased instance
+                music_purchased = MusicPurchased.objects.create(
+                    user=user,
+                    momo_token=momo_token,
+                    purchase_date=timezone.now()
                 )
 
-                # Update composer earnings
-                composer = item.music.composer
-                earning_amount = item.music.price_music * 0.7
-                upload_month = item.music.upload_date  # Set day to 1
+                for item in cart_items:
+                    # Add each music item from the cart to the purchased music
+                    MusicPurchasedItem.objects.create(
+                        music_purchased=music_purchased,
+                        music=item.music
+                    )
 
-                # Ensure ComposerEarnings record exists for upload month
-                earnings_record, created = ComposerEarnings.objects.get_or_create(
-                    composer=composer,
-                    music=item.music,
-                    month=upload_month,
-                    defaults={'earnings': 0, 'purchase_count': 0, 'view_count': 0}
-                )
+                    # Update composer earnings if composer exists
+                    if item.music.composer:
+                        composer = item.music.composer
+                        earning_amount = item.music.price_music * 0.7
+                        upload_month = item.music.upload_date
 
-                # Update earnings and purchase count
-                earnings_record.earnings = F('earnings') + earning_amount
-                earnings_record.purchase_count = F('purchase_count') + 1
-                earnings_record.save()
+                        # Ensure ComposerEarnings record exists for upload month
+                        earnings_record, created = ComposerEarnings.objects.get_or_create(
+                            composer=composer,
+                            music=item.music,
+                            month=upload_month,
+                            defaults={'earnings': 0, 'purchase_count': 0, 'view_count': 0}
+                        )
 
-            # Delete all cart items for the user
-            cart_items.delete()
+                        # Update earnings and purchase count
+                        earnings_record.earnings = F('earnings') + earning_amount
+                        earnings_record.purchase_count = F('purchase_count') + 1
+                        earnings_record.save()
 
-            # Serialize the music purchase object
-            serializer = MusicPurchasedSerializer(music_purchased)
+                # Delete all cart items for the user
+                cart_items.delete()
+
+                # Serialize the music purchase object
+                serializer = MusicPurchasedSerializer(music_purchased)
 
             # Return a success response with the serialized data
             return JsonResponse(serializer.data, status=201)
-        
+
         except User.DoesNotExist:
             return JsonResponse({'error': 'User not found'}, status=404)
         
