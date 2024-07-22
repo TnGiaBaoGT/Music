@@ -112,6 +112,11 @@ class Album(models.Model):
     def __str__(self):
         return self.name_album
 
+    def remove_music(self, music_id):
+        music = self.music_id_album.filter(id_music=music_id).first()
+        if music:
+            self.music_id_album.remove(music)
+
     @property
     def music_info(self):
         return [
