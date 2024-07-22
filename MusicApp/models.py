@@ -116,6 +116,7 @@ class Album(models.Model):
     def music_info(self):
         return [
             {
+                'id_music': music.id_music,
                 'name_music': music.name_music,
                 'music': music.music.url if music.music else None,
                 'name_singer_music': music.name_singer_music,
