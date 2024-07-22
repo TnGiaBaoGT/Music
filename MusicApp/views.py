@@ -391,6 +391,27 @@ def albumApi(request, id_album=0, id_user=0):
         except Album.DoesNotExist:
             return JsonResponse({'mess': 'Record not found'}, status=404)
 
+@csrf_exempt
+def remove_music_from_album(request):
+    if request.method == 'POST':
+        import json
+        try:
+            data = json.loads(request.body)
+            album_id = data.get('album_id')
+            music_id = data.get('music_id')
+            
+            # Lấy album và xóa bài hát khỏi album
+            album = Album.objects.get(id_album=album_id)
+            album.remove_music(music_id)
+            
+            return JsonResponse({"message": "Music removed successfully"}, status=200)
+        except Album.DoesNotExist:
+            return JsonResponse({"error": "Album not found"}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+    return JsonResponse({"error": "Invalid request method"}, status=405)
+
+
 
 @csrf_exempt
 def purchaseApi(request, id_purchase=0, id_user=0):
