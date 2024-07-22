@@ -46,6 +46,7 @@ urlpatterns = [
     path('albums/', views.albumApi),
     path('albums/<int:id_album>', views.albumApi),
     path('albums/user/<int:id_user>', views.albumApi),
+    path('remove_music_from_album/', views.remove_music_from_album),
 
     path('purchases/', views.purchaseApi),
     path('purchases/<int:id_purchase>', views.purchaseApi),
