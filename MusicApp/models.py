@@ -6,10 +6,10 @@ from datetime import datetime
 
 class User (models.Model):
     id_user = models.AutoField(primary_key=True)
-    name_user = models.CharField(max_length=200)
+    name_user = models.CharField(max_length=20)
     email_user = models.EmailField(max_length=50)
-    pass_user = models.CharField(max_length=200)
-    phone_user = models.CharField(max_length=20)
+    pass_user = models.CharField(max_length=50)
+    phone_user = models.CharField(max_length=11)
     status_user = models.BooleanField(default= True)
     def __str__(self):
         return f"ID: {self.id_user} { ''*20} | Name: {self.name_user}"
@@ -89,7 +89,7 @@ class Singer (models.Model):
 
 class Vote (models.Model):
     id_vote = models.AutoField(primary_key=True)
-    comment_vote = models.CharField(max_length=50, null= True)
+    comment_vote = models.CharField(max_length=200, null= True)
     report_vote = models.CharField(max_length=50,  null= True, blank= True)
     
     def __str__(self):
