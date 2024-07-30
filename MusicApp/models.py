@@ -66,7 +66,7 @@ class Listen(models.Model):
 class Singer (models.Model):
     id_singer = models.AutoField(primary_key=True)
     name_singer = models.CharField(max_length=200)
-    phone_singer = models.CharField(max_length=20)
+    phone_singer = models.CharField(max_length=11)
     email_singer = models.EmailField(max_length=50)
     GENRE_CHOICES = [
         ('POP', 'Pop'),
