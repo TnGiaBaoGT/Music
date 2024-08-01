@@ -1015,7 +1015,7 @@ def composer_earnings_detail(request):
 
             # Create a new ComposerEarningsDetail record
             detail = ComposerEarningsDetail.objects.create(
-                
+                composer_earnings=composer_earnings,
                 bank_account=bank_account,
                 earnings=composer_earnings.earnings,
                 purchase_count=composer_earnings.purchase_count,
