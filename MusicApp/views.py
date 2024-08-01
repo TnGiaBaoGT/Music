@@ -1011,7 +1011,8 @@ def composer_earnings_detail(request):
 
             # Get or create the detail record
             detail, created = ComposerEarningsDetail.objects.get_or_create(
-                composer_earnings=composer_earnings
+                composer_earnings=composer_earnings,
+                defaults={'bank_account': bank_account}
             )
 
             # Update earnings, purchase_count, and view_count
@@ -1034,6 +1035,7 @@ def composer_earnings_detail(request):
                 'composer_earnings_detail': {
                     'id': detail.id,
                     'composer_earnings': detail.composer_earnings.id,
+                    'bank_account': detail.bank_account.id if detail.bank_account else None,
                     'total_earnings': str(detail.total_earnings),
                     'earnings': str(detail.earnings),
                     'purchase_count': detail.purchase_count,
@@ -1052,6 +1054,7 @@ def composer_earnings_detail(request):
     
     else:
         return JsonResponse({'error': 'Invalid HTTP method'}, status=405)
+
 
 
 @csrf_exempt
