@@ -268,6 +268,7 @@ class ComposerEarningsDetail(models.Model):
     purchase_count = models.IntegerField(default=0)
     view_count = models.IntegerField(default=0)
     total_earnings = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    bank_account = models.ForeignKey(BankAccount, on_delete=models.SET_NULL, null=True, blank=True)
 
     def calculate_total_earnings(self):
         self.total_earnings = self.earnings + (self.view_count * 50)
@@ -284,7 +285,6 @@ class Ads (models.Model):
     view_count = models.IntegerField(default=0)
     price_ads = models.DecimalField(max_digits=10, decimal_places=2,default=0)
     total_earnings_ads = models.DecimalField(max_digits=10,decimal_places=2,default=0)
-    bank_account = models.ForeignKey(BankAccount, on_delete=models.SET_NULL, null=True, blank=True)
 
     def calculate_total_earnings_ads(self):
         self.total_earnings_ads = self.price_ads * self.view_count
