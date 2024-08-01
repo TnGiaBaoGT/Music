@@ -308,3 +308,13 @@ class Report(models.Model):
 
     def __str__(self):
         return f"User: {self.user.name_user} | Music: {self.music.name_music} | Report: {self.report_choice}"
+
+class BankAccount(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bank_accounts')
+    account_number = models.CharField(max_length=20)
+    bank_name = models.CharField(max_length=100)
+    account_holder_name = models.CharField(max_length=100)
+    expiry_date = models.DateField()
+
+    def __str__(self):
+        return f"Bank Account: {self.account_number} | User: {self.user.name_user}"
