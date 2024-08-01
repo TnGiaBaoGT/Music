@@ -264,7 +264,7 @@ class ComposerEarnings(models.Model):
         )
         
 class ComposerEarningsDetail(models.Model):
-    composer_earnings = models.ManyToManyField(ComposerEarnings)
+    composer_earnings = models.ForeignKey(ComposerEarnings, on_delete=models.CASCADE)
     earnings = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     purchase_count = models.IntegerField(default=0)
     view_count = models.IntegerField(default=0)
