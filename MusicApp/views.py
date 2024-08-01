@@ -1003,22 +1003,21 @@ def composer_earnings_detail(request):
         try:
             data = json.loads(request.body)
             earnings_id = data.get('composer_earnings_id')
-            bank_account_id = data.get('bank_account_id')  # Nhận ID tài khoản ngân hàng
+            bank_account_id = data.get('bank_account_id')
 
+            # Retrieve the composer earnings record
             composer_earnings = ComposerEarnings.objects.get(pk=earnings_id)
-            bank_account = BankAccount.objects.get(pk=bank_account_id)  # Lấy tài khoản ngân hàng
+            bank_account = BankAccount.objects.get(pk=bank_account_id)
 
             # Get or create the detail record
             detail, created = ComposerEarningsDetail.objects.get_or_create(
-                composer_earnings=composer_earnings,
-                defaults={'bank_account': bank_account}  # Cập nhật thông tin tài khoản ngân hàng
+                composer_earnings=composer_earnings
             )
 
             # Update earnings, purchase_count, and view_count
             detail.earnings += composer_earnings.earnings
             detail.purchase_count += composer_earnings.purchase_count
             detail.view_count += composer_earnings.view_count
-            detail.bank_account = bank_account  # Cập nhật thông tin tài khoản ngân hàng
 
             # Reset original values in ComposerEarnings
             composer_earnings.earnings = 0
@@ -1039,14 +1038,15 @@ def composer_earnings_detail(request):
                     'earnings': str(detail.earnings),
                     'purchase_count': detail.purchase_count,
                     'view_count': detail.view_count,
-                    'bank_account': detail.bank_account.id if detail.bank_account else None
                 }
             }, status=200)
 
         except ComposerEarnings.DoesNotExist:
             return JsonResponse({'error': 'Composer earnings not found'}, status=404)
+        
         except BankAccount.DoesNotExist:
             return JsonResponse({'error': 'Bank account not found'}, status=404)
+        
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
     
