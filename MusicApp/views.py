@@ -1008,26 +1008,21 @@ def composer_earnings_detail(request):
             composer_earnings = ComposerEarnings.objects.get(pk=earnings_id)
 
             # Find the bank account for the composer
-            # Assuming one composer has only one bank account
             try:
                 bank_account = BankAccount.objects.get(user=composer_earnings.composer)
             except BankAccount.DoesNotExist:
                 return JsonResponse({'error': 'Bank account not found for this composer'}, status=404)
 
-            # Get or create the detail record
-            detail, created = ComposerEarningsDetail.objects.get_or_create(
+            # Create a new ComposerEarningsDetail record
+            detail = ComposerEarningsDetail.objects.create(
                 composer_earnings=composer_earnings,
-                defaults={'bank_account': bank_account}
+                bank_account=bank_account,
+                earnings=composer_earnings.earnings,
+                purchase_count=composer_earnings.purchase_count,
+                view_count=composer_earnings.view_count,
+                withdrawal_date=timezone.now(),  # Cập nhật thời gian rút tiền
+                status_state=False  # Trạng thái mặc định là False
             )
-
-            if not created:
-                # Update existing detail record with bank account
-                detail.bank_account = bank_account
-
-            # Update earnings, purchase_count, and view_count
-            detail.earnings += composer_earnings.earnings
-            detail.purchase_count += composer_earnings.purchase_count
-            detail.view_count += composer_earnings.view_count
 
             # Reset original values in ComposerEarnings
             composer_earnings.earnings = 0
@@ -1040,18 +1035,8 @@ def composer_earnings_detail(request):
             detail.save()
 
             return JsonResponse({
-                'message': 'Composer earnings detail updated successfully',
-                'composer_earnings_detail': {
-                    'id': detail.id,
-                    'composer_earnings': detail.composer_earnings.id,
-                    'bank_account': detail.bank_account.id if detail.bank_account else None,
-                    'total_earnings': str(detail.total_earnings),
-                    'earnings': str(detail.earnings),
-                    'purchase_count': detail.purchase_count,
-                    'view_count': detail.view_count,
-                }
-            }, status=200)
-
+                'message': 'Composer earnings detail created successfully',
+                 }, status=200)
         except ComposerEarnings.DoesNotExist:
             return JsonResponse({'error': 'Composer earnings not found'}, status=404)
         
