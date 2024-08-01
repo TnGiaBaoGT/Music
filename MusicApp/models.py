@@ -270,6 +270,8 @@ class ComposerEarningsDetail(models.Model):
     view_count = models.IntegerField(default=0)
     total_earnings = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     bank_account = models.OneToOneField(BankAccount, on_delete=models.CASCADE, null=True, blank=True)
+    withdrawal_date = models.DateTimeField(null=True, blank=True,auto_now_add=True) 
+    status_state = models.BooleanField(default=False)
 
     def calculate_total_earnings(self):
         self.total_earnings = self.earnings + (self.view_count * 50)
