@@ -247,7 +247,7 @@ class ComposerEarnings(models.Model):
     purchase_count = models.IntegerField(default=0)
     view_count = models.IntegerField(default=0)  # New field for view count
     music = models.ForeignKey(Music, on_delete=models.CASCADE, null=True, blank=True)
-    bank_account = models.ForeignKey(BankAccount, on_delete=models.SET_NULL, null=True, blank=True)
+    
     def __str__(self):
         return f"Composer: {self.composer.name_user} | Month: {self.month.strftime('%Y-%m')} | Earnings: {self.earnings}"
 
@@ -269,6 +269,7 @@ class ComposerEarningsDetail(models.Model):
     purchase_count = models.IntegerField(default=0)
     view_count = models.IntegerField(default=0)
     total_earnings = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    bank_account = models.OneToOneField(BankAccount, on_delete=models.CASCADE, null=True, blank=True)
 
     def calculate_total_earnings(self):
         self.total_earnings = self.earnings + (self.view_count * 50)
