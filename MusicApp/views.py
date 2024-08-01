@@ -1003,17 +1003,26 @@ def composer_earnings_detail(request):
         try:
             data = json.loads(request.body)
             earnings_id = data.get('composer_earnings_id')
-            bank_account_id = data.get('bank_account_id')
 
             # Retrieve the composer earnings record
             composer_earnings = ComposerEarnings.objects.get(pk=earnings_id)
-            bank_account = BankAccount.objects.get(pk=bank_account_id)
+
+            # Find the bank account for the composer
+            # Assuming one composer has only one bank account
+            try:
+                bank_account = BankAccount.objects.get(user=composer_earnings.composer)
+            except BankAccount.DoesNotExist:
+                return JsonResponse({'error': 'Bank account not found for this composer'}, status=404)
 
             # Get or create the detail record
             detail, created = ComposerEarningsDetail.objects.get_or_create(
                 composer_earnings=composer_earnings,
                 defaults={'bank_account': bank_account}
             )
+
+            if not created:
+                # Update existing detail record with bank account
+                detail.bank_account = bank_account
 
             # Update earnings, purchase_count, and view_count
             detail.earnings += composer_earnings.earnings
@@ -1046,14 +1055,12 @@ def composer_earnings_detail(request):
         except ComposerEarnings.DoesNotExist:
             return JsonResponse({'error': 'Composer earnings not found'}, status=404)
         
-        except BankAccount.DoesNotExist:
-            return JsonResponse({'error': 'Bank account not found'}, status=404)
-        
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
     
     else:
         return JsonResponse({'error': 'Invalid HTTP method'}, status=405)
+
 
 
 
