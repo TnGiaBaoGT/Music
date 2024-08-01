@@ -1036,7 +1036,8 @@ def composer_earnings_detail(request):
 
             return JsonResponse({
                 'message': 'Composer earnings detail created successfully',
-                 }, status=200)
+            }, status=200)
+
         except ComposerEarnings.DoesNotExist:
             return JsonResponse({'error': 'Composer earnings not found'}, status=404)
         
@@ -1045,6 +1046,7 @@ def composer_earnings_detail(request):
     
     else:
         return JsonResponse({'error': 'Invalid HTTP method'}, status=405)
+
 
 
 
