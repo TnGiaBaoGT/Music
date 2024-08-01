@@ -111,8 +111,14 @@ class ComposerEarningsSerializer(serializers.ModelSerializer):
         model = ComposerEarnings
         fields = '__all__'
 
+class BankAccountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BankAccount
+        fields = '__all__'
+
 class ComposerEarningsDetailSerializer(serializers.ModelSerializer):
     composer_earnings_detail = ComposerEarningsSerializer(source="composer_earnings",read_only=True)
+    bank_info = BankAccountSerializer(source="bank_account")
     class Meta:
         model = ComposerEarningsDetail
         fields = '__all__'
@@ -126,7 +132,4 @@ class ReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = Report
         fields = '__all__'
-class BankAccountSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = BankAccount
-        fields = '__all__'
+
