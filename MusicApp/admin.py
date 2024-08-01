@@ -23,7 +23,9 @@ admin.site.register(Listen)
 admin.site.register(MusicCart)
 admin.site.register(MusicPurchased)
 admin.site.register(ComposerEarnings)
-admin.site.register(ComposerEarningsDetail)
+class ComposerEarningsDetailDisplay(admin.ModelAdmin):
+    list_display = ('composer_earnings','earnings','purchase_count','view_count','total_earnings','bank_account','withdrawal_date','status_state')
+admin.site.register(ComposerEarningsDetail,ComposerEarningsDetailDisplay)
 admin.site.register(Ads)
 admin.site.register(Report)
 class BankAccountDisplay(admin.ModelAdmin):
