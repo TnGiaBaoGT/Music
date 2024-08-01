@@ -1031,7 +1031,6 @@ def composer_earnings_detail(request):
                 'composer_earnings_detail': {
                     'id': detail.id,
                     'composer_earnings': detail.composer_earnings.id,
-                    'momo_token': detail.momo_token,
                     'total_earnings': str(detail.total_earnings),
                     'earnings': str(detail.earnings),
                     'purchase_count': detail.purchase_count,
