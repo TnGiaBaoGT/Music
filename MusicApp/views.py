@@ -1013,16 +1013,32 @@ def composer_earnings_detail(request):
             except BankAccount.DoesNotExist:
                 return JsonResponse({'error': 'Bank account not found for this composer'}, status=404)
 
-            # Create a new ComposerEarningsDetail record
-            detail = ComposerEarningsDetail.objects.create(
+            # Try to get an existing ComposerEarningsDetail record
+            detail, created = ComposerEarningsDetail.objects.get_or_create(
                 composer_earnings=composer_earnings,
-                bank_account=bank_account,
-                earnings=composer_earnings.earnings,
-                purchase_count=composer_earnings.purchase_count,
-                view_count=composer_earnings.view_count,
-                withdrawal_date=timezone.now(),  # Cập nhật thời gian rút tiền
-                status_state=False  # Trạng thái mặc định là False
+                defaults={
+                    'bank_account': bank_account,
+                    'earnings': composer_earnings.earnings,
+                    'purchase_count': composer_earnings.purchase_count,
+                    'view_count': composer_earnings.view_count,
+                    'withdrawal_date': timezone.now(),  # Update withdrawal date
+                    'status_state': False  # Default status
+                }
             )
+
+            if not created:
+                # If the record already exists, update it
+                detail.earnings = composer_earnings.earnings
+                detail.purchase_count = composer_earnings.purchase_count
+                detail.view_count = composer_earnings.view_count
+                detail.withdrawal_date = timezone.now()  # Update withdrawal date
+                detail.status_state = False  # Default status
+                detail.calculate_total_earnings()
+                detail.save()
+            else:
+                # If the record was created, calculate total earnings
+                detail.calculate_total_earnings()
+                detail.save()
 
             # Reset original values in ComposerEarnings
             composer_earnings.earnings = 0
@@ -1030,12 +1046,8 @@ def composer_earnings_detail(request):
             composer_earnings.view_count = 0
             composer_earnings.save()
 
-            # Calculate total earnings
-            detail.calculate_total_earnings()
-            detail.save()
-
             return JsonResponse({
-                'message': 'Composer earnings detail created successfully',
+                'message': 'Composer earnings detail created or updated successfully',
             }, status=200)
 
         except ComposerEarnings.DoesNotExist:
@@ -1046,6 +1058,7 @@ def composer_earnings_detail(request):
     
     else:
         return JsonResponse({'error': 'Invalid HTTP method'}, status=405)
+
 
 
 
