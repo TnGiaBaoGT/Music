@@ -2,8 +2,8 @@ from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
-from MusicApp.models import Music, User, Singer, Vote, Transaction, Album,Purchase, Like, MusicBundle,BundlePurchase,Listen,MusicCart,MusicPurchased,MusicPurchasedItem,ComposerEarnings,ComposerEarningsDetail,Ads,Report
-from MusicApp.serializers import MusicSerializer, UserSerializer, SingerSerializer, VoteSerializer, TransactionSerializer, AlbumSerializer,PurchaseSerializer, LikeSerializer,MusicBundleSerializer,BundlePurchaseSerializer,MusicCartSerializer,MusicPurchasedSerializer,ComposerEarningsSerializer,ComposerEarningsDetailSerializer,AdsSerializer,ReportSerializer
+from MusicApp.models import Music, User, Singer, Vote, Transaction, Album,Purchase, Like, MusicBundle,BundlePurchase,Listen,MusicCart,MusicPurchased,MusicPurchasedItem,ComposerEarnings,ComposerEarningsDetail,Ads,Report,BankAccount
+from MusicApp.serializers import MusicSerializer, UserSerializer, SingerSerializer, VoteSerializer, TransactionSerializer, AlbumSerializer,PurchaseSerializer, LikeSerializer,MusicBundleSerializer,BundlePurchaseSerializer,MusicCartSerializer,MusicPurchasedSerializer,ComposerEarningsSerializer,ComposerEarningsDetailSerializer,AdsSerializer,ReportSerializer,BankAccountSerializer
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -1068,19 +1068,29 @@ def receive_momo_token_composer_earnings(request):
 
 
 @csrf_exempt
-def composer_earnings_detail_api(request, composer_earnings_id=0):
+def composer_earnings_detail_api(request, composer_id=0):
     if request.method == 'GET':
-        if composer_earnings_id > 0:
+        if composer_id > 0:
             try:
-                composer_earnings = ComposerEarnings.objects.get(pk=composer_earnings_id)
-                composer_earnings_detail = ComposerEarningsDetail.objects.get(composer_earnings=composer_earnings)
-                serializer = ComposerEarningsDetailSerializer(composer_earnings_detail)
-                return JsonResponse(serializer.data, status=200)
-            except ObjectDoesNotExist:
-                return JsonResponse({'error': 'ComposerEarningsDetail not found for this ComposerEarnings'}, status=404)
-        else:
-            return JsonResponse({'error': 'Invalid composer_earnings_id'}, status=400)
+                composer = User.objects.get(pk=composer_id, name_role='COMPOSER')
+                composer_earnings = ComposerEarnings.objects.filter(composer=composer)
+                
+                if not composer_earnings.exists():
+                    return JsonResponse({'error': 'No earnings found for this composer'}, status=404)
 
+                earnings_details = ComposerEarningsDetail.objects.filter(composer_earnings__in=composer_earnings)
+                
+                if not earnings_details.exists():
+                    return JsonResponse({'error': 'ComposerEarningsDetail not found for this composer'}, status=404)
+                
+                serializer = ComposerEarningsDetailSerializer(earnings_details, many=True)
+                return JsonResponse(serializer.data, status=200, safe=False)
+            except User.DoesNotExist:
+                return JsonResponse({'error': 'Composer not found'}, status=404)
+        else:
+            return JsonResponse({'error': 'Invalid composer_id'}, status=400)
+    else:
+        return JsonResponse({'error': 'Invalid HTTP method'}, status=405)
 
 
 @csrf_exempt
@@ -1147,3 +1157,54 @@ def reportApi(request):
         return JsonResponse(report_serializer.errors, status=400)
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+@csrf_exempt
+def bank_account_api(request, id_bank_account=0, id_user=0):
+    if request.method == 'GET':
+        if id_user > 0:
+            try:
+                bank_accounts = BankAccount.objects.filter(user=id_user)
+                bank_account_serializer = BankAccountSerializer(bank_accounts, many=True)
+                return JsonResponse({'bank_accounts': bank_account_serializer.data}, safe=False)
+            except BankAccount.DoesNotExist:
+                return JsonResponse({'mess': 'Record not found'}, status=404)
+        
+        if id_bank_account > 0:
+            try:
+                bank_account = BankAccount.objects.get(id=id_bank_account)
+                bank_account_serializer = BankAccountSerializer(bank_account)
+                return JsonResponse({'bank_account': bank_account_serializer.data}, safe=False)
+            except BankAccount.DoesNotExist:
+                return JsonResponse({'mess': 'Record not found'}, status=404)
+        
+        bank_accounts = BankAccount.objects.all()
+        bank_account_serializer = BankAccountSerializer(bank_accounts, many=True)
+        return JsonResponse({'bank_accounts': bank_account_serializer.data}, safe=False)
+    
+    elif request.method == 'POST':
+        bank_account_data = JSONParser().parse(request)
+        bank_account_serializer = BankAccountSerializer(data=bank_account_data)
+        if bank_account_serializer.is_valid():
+            bank_account_serializer.save()
+            return JsonResponse({'mess': 'Added Successfully'}, safe=False)
+        return JsonResponse(bank_account_serializer.errors, safe=False, status=400)
+    
+    elif request.method == 'PUT':
+        bank_account_data = JSONParser().parse(request)
+        try:
+            bank_account = BankAccount.objects.get(id=id_bank_account)
+            bank_account_serializer = BankAccountSerializer(bank_account, data=bank_account_data, partial=True)  # Use partial update
+            if bank_account_serializer.is_valid():
+                bank_account_serializer.save()
+                return JsonResponse({'mess': 'Updated Successfully'}, safe=False)
+            return JsonResponse(bank_account_serializer.errors, safe=False, status=400)
+        except BankAccount.DoesNotExist:
+            return JsonResponse({'mess': 'Record not found'}, status=404)
+    
+    elif request.method == 'DELETE':
+        try:
+            bank_account = BankAccount.objects.get(id=id_bank_account)
+            bank_account.delete()
+            return JsonResponse({'mess': 'Deleted Successfully'}, safe=False)
+        except BankAccount.DoesNotExist:
+            return JsonResponse({'mess': 'Record not found'}, status=404)
