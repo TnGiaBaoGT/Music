@@ -87,7 +87,7 @@ urlpatterns = [
     path('composer_earnings/composer/<int:id_composer>/', views.composer_earnings_api),
 
     path('composer-earnings-detail/', views.composer_earnings_detail),
-    path('composer-earnings-detail/<int:composer_earnings_id>/', views.composer_earnings_detail_api),
+    path('composer-earnings-detail/<int:composer_id>/', views.composer_earnings_detail_api),
 
     path('ads/', views.adsApi),
     path('ads/<int:id_ads>/', views.adsApi),
