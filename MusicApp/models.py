@@ -231,7 +231,7 @@ class MusicPurchasedItem(models.Model):
 
 
 class BankAccount(models.Model):
-    user = models.OnetoOneField(User, on_delete=models.CASCADE, related_name='bank_accounts')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='bank_accounts')
     account_number = models.CharField(max_length=20)
     bank_name = models.CharField(max_length=100)
     account_holder_name = models.CharField(max_length=100)
