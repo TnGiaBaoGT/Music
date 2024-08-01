@@ -95,7 +95,11 @@ urlpatterns = [
 
     path('report/<int:id_user>', views.getReports),
     path('report/all', views.getReports),
-    path('report/', views.reportApi)
+    path('report/', views.reportApi),
+
+    path('bank_accounts/', views.bank_account_api),
+    path('bank_accounts/<int:id_bank_account>/', views.bank_account_api),
+    path('bank_accounts/user/<int:id_user>/', views.bank_account_api)
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
