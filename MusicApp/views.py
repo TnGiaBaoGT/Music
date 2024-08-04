@@ -1028,17 +1028,17 @@ def composer_earnings_detail(request):
 
             if not created:
                 # If the record already exists, update it
-                detail.earnings = composer_earnings.earnings
-                detail.purchase_count = composer_earnings.purchase_count
-                detail.view_count = composer_earnings.view_count
+                detail.earnings += composer_earnings.earnings
+                detail.purchase_count += composer_earnings.purchase_count
+                detail.view_count += composer_earnings.view_count
                 detail.withdrawal_date = timezone.now()  # Update withdrawal date
                 detail.status_state = False  # Default status
                 detail.calculate_total_earnings()
-                detail.save()
             else:
                 # If the record was created, calculate total earnings
                 detail.calculate_total_earnings()
-                detail.save()
+
+            detail.save()
 
             # Reset original values in ComposerEarnings
             composer_earnings.earnings = 0
@@ -1058,6 +1058,7 @@ def composer_earnings_detail(request):
     
     else:
         return JsonResponse({'error': 'Invalid HTTP method'}, status=405)
+
 
 
 
