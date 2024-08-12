@@ -25,7 +25,9 @@ class BundlePurchaseAdmin(admin.ModelAdmin):
 admin.site.register(BundlePurchase, BundlePurchaseAdmin)
 admin.site.register(Listen)
 admin.site.register(MusicCart)
-admin.site.register(MusicPurchased)
+class MusicPurchaseDisplay(admin.ModelAdmin):
+    list_display = ('id_music_purchased','user','purchase_date','momo_token')
+admin.site.register(MusicPurchased,MusicPurchaseDisplay)
 admin.site.register(ComposerEarnings)
 class ComposerEarningsDetailDisplay(admin.ModelAdmin):
     list_display = ('composer_earnings','earnings','purchase_count','view_count','total_earnings','bank_account','withdrawal_date','status_state')
