@@ -3,8 +3,12 @@ from django.contrib import admin
 # Register your models here.
 from .models import Music, User, Purchase, Singer, Vote, Transaction, Album, Like, MusicBundle,BundlePurchase,Listen,MusicCart,MusicPurchased,ComposerEarnings,ComposerEarningsDetail,Ads,Report,BankAccount
 
-admin.site.register(Music)
-admin.site.register(User)
+class MusicDisplay(admin.ModelAdmin):
+    list_display = ('name_music','price_music','status_music','isFree','genre_music','music','upload_date')
+admin.site.register(Music,MusicDisplay)
+class UserDisplay(admin.ModelAdmin):
+    list_display = ('name_user','email_user','phone_user','status_user')
+admin.site.register(User,UserDisplay)
 admin.site.register(Purchase)
 admin.site.register(Singer)
 admin.site.register(Vote)
