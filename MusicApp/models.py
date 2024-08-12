@@ -269,7 +269,7 @@ class ComposerEarningsDetail(models.Model):
     purchase_count = models.IntegerField(default=0)
     view_count = models.IntegerField(default=0)
     total_earnings = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    bank_account = models.OneToOneField(BankAccount, on_delete=models.CASCADE, null=True, blank=True)
+    bank_account = models.ForeignKey(BankAccount, on_delete=models.CASCADE, null=True, blank=True)
     withdrawal_date = models.DateTimeField(null=True, blank=True) 
     status_state = models.BooleanField(default=False)
 
