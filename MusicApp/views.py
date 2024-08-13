@@ -695,8 +695,8 @@ def listen_song(request, id_music):
             # Assuming user_id is sent in the request body
             data = json.loads(request.body)
             user_id = data.get('user_id')
+            
             user = None
-
             if user_id:
                 user = get_object_or_404(User, id_user=user_id)
 
