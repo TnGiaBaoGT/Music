@@ -682,17 +682,23 @@ def listen_song(request, id_music):
             # Retrieve the music object
             song = get_object_or_404(Music, id_music=id_music)
             
-            # Retrieve or create ComposerEarnings record for the upload month of the music
-            composer = song.composer
-            upload_month = song.upload_date  # Set to the first day of the month
-            earnings_record, created = ComposerEarnings.objects.get_or_create(
-                composer=composer,
-                music=song,
-                month=upload_month,
-                defaults={'earnings': 0, 'purchase_count': 0, 'view_count': 0}
-            )
+            # Check if the song has a composer
+            if song.composer:
+                # Retrieve or create ComposerEarnings record for the upload month of the music
+                composer = song.composer
+                upload_month = song.upload_date.replace(day=1)  # Ensure the month is set to the first day
+                earnings_record, created = ComposerEarnings.objects.get_or_create(
+                    composer=composer,
+                    music=song,
+                    month=upload_month,
+                    defaults={'earnings': 0, 'purchase_count': 0, 'view_count': 0}
+                )
+                
+                # Update the view count for ComposerEarnings
+                earnings_record.view_count += 1
+                earnings_record.save()
 
-            # Assuming user_id is sent in the request body
+            # Load data from request body
             data = json.loads(request.body)
             user_id = data.get('user_id')
             
@@ -707,10 +713,6 @@ def listen_song(request, id_music):
             song.listen_count += 1
             song.save()
 
-            # Update the view count for ComposerEarnings
-            earnings_record.view_count += 1
-            earnings_record.save()
-
             return JsonResponse({"message": "Song listened"}, status=200)
         
         except Music.DoesNotExist:
@@ -724,6 +726,7 @@ def listen_song(request, id_music):
     
     else:
         return JsonResponse({"error": "Invalid HTTP method"}, status=405)
+
 
 
 @csrf_exempt
