@@ -686,17 +686,20 @@ def listen_song(request, id_music):
             if song.composer:
                 # Retrieve or create ComposerEarnings record for the upload month of the music
                 composer = song.composer
-                upload_month = song.upload_date 
-                earnings_record, created = ComposerEarnings.objects.get_or_create(
-                    composer=composer,
-                    music=song,
-                    month=upload_month,
-                    defaults={'earnings': 0, 'purchase_count': 0, 'view_count': 0}
-                )
+                upload_month = song.upload_date
                 
-                # Update the view count for ComposerEarnings
-                earnings_record.view_count += 1
-                earnings_record.save()
+                try:
+                    earnings_record = ComposerEarnings.objects.get(
+                        composer=composer,
+                        music=song,
+                        month=upload_month
+                    )
+                    # Update the view count for ComposerEarnings
+                    earnings_record.view_count += 1
+                    earnings_record.save()
+                except ComposerEarnings.DoesNotExist:
+                    # Handle the case where the ComposerEarnings record does not exist
+                    pass  # or log this event if needed
 
             # Load data from request body
             data = json.loads(request.body)
@@ -726,6 +729,7 @@ def listen_song(request, id_music):
     
     else:
         return JsonResponse({"error": "Invalid HTTP method"}, status=405)
+
 
 
 
